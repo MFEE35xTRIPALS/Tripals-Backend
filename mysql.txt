@@ -9,6 +9,14 @@ INSERT INTO tb_user( permission, id, password, nickname, status ) VALUES (2 , 'a
 // SELECT (GET)
  SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;
 
-// INSERT (UPDATE)
+// INSERT (POST)
 INSERT INTO `tb_news`( `title`, `content`, `userno`, `release`) VALUES ('【活動】第一屆台南旅遊大使票選活動開始啦！','即日起自5/31，趕快來閱讀發布於台南區的文章，並將文章愛心加入收藏，文章作者就有機會角逐台南旅遊大使！！只要是發布於台南的文章即享有票選資格！<br> 主辦單位Tripals保有最終修改、變更、活動解釋及取消本活動之權利，若有相關異動將會公告於網站，將不另行通知。',1,'2023-04-10');
 INSERT INTO `tb_news`(`userno`,`title`, `content`, `release`) VALUES (1,'【公告】Tripals 官方吉祥物票選活動！','Tripals 團隊繪製了可愛吉祥物，請大家幫我們選出你最喜歡的icon～～，進入小編主頁，將最喜歡的icon點愛心收藏，票選活動至4/13，感謝大家～by A編<3', '2023/04/05')
+
+// UPDATE (POST)
+UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`=?;
+
+// DELETE (POST)
+DELETE FROM `tb_news` WHERE newsno = ?;
+
+/* ----- 會員管理 ----- */
