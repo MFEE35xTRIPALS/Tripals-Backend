@@ -4,7 +4,7 @@
 var express = require("express");
 var app = express();
 app.listen(3000, function (req, res) {
-  console.log("天竺鼠車車: 啟動中");
+  console.log("Tripals: 啟動中");
 });
 
 // -----------------------------------
