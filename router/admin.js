@@ -16,16 +16,17 @@ connhelper.connect(function (err) {
   if (err) {
     console.log("資料庫連線錯誤", err.sqlMessage);
   } else {
-    console.log("資料庫連線成功");
+    console.log("資料庫連線成功-最新消息");
   }
 });
 // -----------------------------------
 //
 // -----------------------------------
 /* GET */
+//---------
 page.get("/", function (req, res) {
   var sql =
-    "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
+    "SELECT newsno,title, content, status,DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
 
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
@@ -35,8 +36,9 @@ page.get("/", function (req, res) {
     }
   });
 });
-
+//---------
 /* POST */
+//---------
 page.post("/post", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql =
@@ -59,7 +61,9 @@ page.post("/post", express.urlencoded(), function (req, res) {
   );
 });
 
+//---------
 /* UPDATE */
+//---------
 page.post("/update", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql =
@@ -82,9 +86,13 @@ page.post("/update", express.urlencoded(), function (req, res) {
   );
 });
 
-/* DELETE */
+//---------
+/* DELETE */ //要刪除資料庫，還是改變狀態
+//---------
 page.post("/delete", express.urlencoded(), function (req, res) {
   console.log(req.body);
+  // var sql =
+  //   "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
   var sql = "DELETE FROM `tb_news` WHERE newsno = ?;";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";

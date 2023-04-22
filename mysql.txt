@@ -20,3 +20,8 @@ UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`
 DELETE FROM `tb_news` WHERE newsno = ?;
 
 /* ----- 會員管理 ----- */
+// SELECT (GET)
+SELECT `userno`,  `id`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user` WHERE 1
+
+// INSERT (POST)
+INSERT INTO `tb_user`( `id`, `password`, `nickname`, `birthday`, `intro`) VALUES ('monday_blue30639@gmail.com','1234','憂鬱星期一','1987-10-31','人生，從我們離開舒適圈那刻才開始')
