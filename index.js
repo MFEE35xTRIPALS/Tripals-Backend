@@ -18,14 +18,14 @@ app.use(cors());
 
 // --------- 引用各分頁的CRUD -----------
 var admin = require("./router/admin"); // 引用，相對路徑
-app.use("/news", admin); // 使用
+app.use("/admin", admin); // 使用
 // -----------------------------------
 var members = require("./router/members"); // 引用，相對路徑
 app.use("/members", members); // 使用
 // -----------------------------------
-var client = require("./router/client");
-app.use("/client", client);
-// -----------------------------------
-var selfpage = require("./router/selfpage");
-app.use("/selfpage", selfpage);
-// -----------------------------------
+// var client = require("./router/client");
+// app.use("/client", client);
+// // -----------------------------------
+// var selfpage = require("./router/selfpage");
+// app.use("/selfpage", selfpage);
+// // -----------------------------------

@@ -11,7 +11,7 @@ var connhelper = require("./config");
 //---------
 page.get("/", function (req, res) {
   var sql =
-    "SELECT newsno,title, content, status,DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
+    "SELECT newsno,title, content, status,DATE_FORMAT(`release`, '%Y-%m-%d') `release` , DATE_FORMAT(`date`, '%Y-%m-%d')`date`FROM `tb_news`;";
 
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
@@ -84,7 +84,7 @@ page.post("/delete", express.urlencoded(), function (req, res) {
   // console.log(sql);
   connhelper.query(
     sql + sqlAll,
-    [req.body.newsno],
+    [req.body.status, req.body.newsno],
     function (err, results, fields) {
       if (err) {
         res.send("MySQL 可能語法寫錯了", err);
