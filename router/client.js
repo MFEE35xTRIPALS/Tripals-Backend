@@ -5,18 +5,18 @@ var page = express.Router();
 var connhelper = require("./config");
 
 //處理圖檔
-var multer = require('multer');
+var multer = require("multer");
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname));
-    }
-  });
-  
-  // 創建 multer 實例
-  const upload = multer({ storage: storage });
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+// 創建 multer 實例
+const upload = multer({ storage: storage });
 // let path = require('path');
 // page.use('/uploads',express.static(path.join(__dirname, 'userprofile')));
 
@@ -41,15 +41,15 @@ const storage = multer.diskStorage({
 
 // });
 
-page.post('/upload', upload.single('shotUpload'), function(req, res) {
-    console.log('okk');
-    console.log(req);
-    console.log('okk2');
-    console.log('Image uploaded:', req.file);
-    res.json({ url: `/uploads/${req.file}` });
-  });
-page.get('/',function(req,res){
-    // res.send()
-})
+page.post("/upload", upload.single("shotUpload"), function (req, res) {
+  console.log("okk");
+  console.log(req);
+  console.log("okk2");
+  console.log("Image uploaded:", req.file);
+  res.json({ url: `/uploads/${req.file}` });
+});
+page.get("/", function (req, res) {
+  // res.send()
+});
 
 module.exports = page;

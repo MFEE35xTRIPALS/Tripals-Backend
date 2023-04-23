@@ -25,3 +25,7 @@ SELECT `userno`,  `id`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, 
 
 // INSERT (POST)
 INSERT INTO `tb_user`( `id`, `password`, `nickname`, `birthday`, `intro`) VALUES ('monday_blue30639@gmail.com','1234','憂鬱星期一','1987-10-31','人生，從我們離開舒適圈那刻才開始')
+
+/* ----- 個人資料 ----- */
+// SELECT (GET)
+SELECT  `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=6;
