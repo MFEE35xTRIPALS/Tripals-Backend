@@ -76,9 +76,8 @@ page.post("/update", express.urlencoded(), function (req, res) {
 //---------
 page.post("/delete", express.urlencoded(), function (req, res) {
   console.log(req.body);
-  // var sql =
-  //   "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
-  var sql = "DELETE FROM `tb_news` WHERE newsno = ?;";
+  var sql = "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
+  // var sql = "DELETE FROM `tb_news` WHERE newsno = ?;";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
   // // 這邊userno 先固定1->屆時要回來調整
