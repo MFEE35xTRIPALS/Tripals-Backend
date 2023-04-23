@@ -16,6 +16,10 @@ var cors = require("cors");
 // };
 app.use(cors());
 
+app.get('/',function(req,res){
+  res.send('okk');
+})
+
 // --------- 引用各分頁的CRUD -----------
 var admin = require("./router/admin"); // 引用，相對路徑
 app.use("/news", admin); // 使用
