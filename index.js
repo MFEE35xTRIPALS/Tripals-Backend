@@ -30,3 +30,6 @@ app.use("/members", members); // 使用
 var client = require("./router/client"); 
 app.use("/client", client); 
 // -----------------------------------
+var selfpage = require("./router/selfpage"); 
+app.use("/selfpage", selfpage); 
+// -----------------------------------
