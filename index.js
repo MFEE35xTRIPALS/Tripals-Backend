@@ -15,12 +15,6 @@ var cors = require("cors");
 //   origin: ["http://locathost/"],
 // };
 app.use(cors());
-
-
-app.get('/',function(req,res){
-  res.send('okk');
-})
-
 // --------- 引用各分頁的CRUD -----------
 var admin = require("./router/admin"); // 引用，相對路徑
 app.use("/admin", admin); // 使用

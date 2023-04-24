@@ -49,7 +49,7 @@ page.post("/post", express.urlencoded(), function (req, res) {
 //---------
 /* UPDATE */
 //---------
-page.post("/update", express.urlencoded(), function (req, res) {
+page.put("/update", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql =
     "UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`=?;";
@@ -74,7 +74,7 @@ page.post("/update", express.urlencoded(), function (req, res) {
 //---------
 /* DELETE */ //要刪除資料庫，還是改變狀態
 //---------
-page.post("/delete", express.urlencoded(), function (req, res) {
+page.delete("/delete", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql = "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
   // var sql = "DELETE FROM `tb_news` WHERE newsno = ?;";
