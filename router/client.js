@@ -16,10 +16,20 @@ var mystorage = multer.diskStorage({
         cb(null, userFileName);
     }
 })
-let upload = multer({ storage: mystorage });
+let upload = multer({
+    storage: mystorage,
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype == 'image/png'||file.mimetype == 'image/jpg'||file.mimetype == 'image/jpeg'||file.mimetype == 'image/gif') {
+            cb(null, true)
+        } else {
+           return cb(new Error('上傳檔案類型錯誤'))
+        }
+    }
+});
 page.post('/upload', upload.single('shotUpload'), function(req, res) {
     console.log('okk');
     console.log(req.file);
+    console.log(req);
   });
 
 //select
