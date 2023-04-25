@@ -26,7 +26,7 @@ let upload = multer({
         }
     }
 });
-page.post('/upload', upload.single('shotUpload'), function (req, res) {
+page.post('/upload/:userno', upload.single('shotUpload'), function (req, res) {
     let sql = `UPDATE tb_user SET avatar = '/useravatar/2.${req.file.originalname.split('.')[1]}' WHERE userno = 2;`;
     connhelper.query(sql,[], (err, results, fields) => {
         if (err) {
