@@ -13,10 +13,9 @@ var mystorage = multer.diskStorage({
         cb(null, "public/useravatar");//保存的路徑(目的地)
     },
     filename: function (req, file, cb) {//編寫檔案名稱
-
-        console.log(file);
+        // console.log(userno);
         // var userFileName = Date.now() + '-' + file.originalname;//留下檔案戳記記錄歷程
-        var userFileName = 2 + '.' + file.originalname.split('.')[1];//留下自己可辨別的檔案
+        var userFileName = userno + '.' + file.originalname.split('.')[1];//留下自己可辨別的檔案
         cb(null, userFileName);
     }
 })
@@ -35,9 +34,9 @@ let upload = multer({
 
 page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
-    userno=req.body.userno;
+    // userno=req.body.userno;
     let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
-    connhelper.query(sql, [('/useravatar/'+req.body.userno+'.'+req.files[0].originalname.split('.')[1]),req.body.userno], (err, results, fields) => {
+    connhelper.query(sql, [('/useravatar/'+userno+'.'+req.files[0].originalname.split('.')[1]),userno], (err, results, fields) => {
         if (err) {
             res.send("MySQL 可能語法寫錯了", err);
         } else {
@@ -50,9 +49,11 @@ page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
 
 //select
 page.get('/avatar', function (req, res) {
-    var sql = "SELECT avatar FROM `tb_user` WHERE userno=2; ";//?接收使用這輸入資料
+    userno=req.query.userno;
+    // console.log(userno);
+    var sql = "SELECT avatar FROM `tb_user` WHERE userno=?; ";//?接收使用這輸入資料
     connhelper.query(sql,
-        [],//填入2的位置
+        [userno],//填入2的位置
         function (err, result, fields) {
             if (err) {
                 res.send('select發生錯誤', err);
