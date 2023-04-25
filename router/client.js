@@ -4,6 +4,8 @@ var page = express.Router();
 // 連線資料庫
 var connhelper = require("./config");
 
+let userno;
+
 //處理圖檔
 var multer = require('multer');
 var mystorage = multer.diskStorage({
@@ -11,14 +13,18 @@ var mystorage = multer.diskStorage({
         cb(null, "public/useravatar");//保存的路徑(目的地)
     },
     filename: function (req, file, cb) {//編寫檔案名稱
+
+        console.log(file);
         // var userFileName = Date.now() + '-' + file.originalname;//留下檔案戳記記錄歷程
-        var userFileName = '2' + '.' + file.originalname.split('.')[1];//留下自己可辨別的檔案
+        var userFileName = 2 + '.' + file.originalname.split('.')[1];//留下自己可辨別的檔案
         cb(null, userFileName);
     }
 })
 let upload = multer({
     storage: mystorage,
     fileFilter: function (req, file, cb) {
+        // console.log('apple:'+JSON.stringify(req));
+        // console.log('apple:'+JSON.stringify(file));
         if (file.mimetype == 'image/png' || file.mimetype == 'image/jpg' || file.mimetype == 'image/jpeg' || file.mimetype == 'image/gif') {
             cb(null, true)
         } else {
@@ -26,9 +32,12 @@ let upload = multer({
         }
     }
 });
-page.post('/upload/:userno', upload.single('shotUpload'), function (req, res) {
-    let sql = `UPDATE tb_user SET avatar = '/useravatar/2.${req.file.originalname.split('.')[1]}' WHERE userno = 2;`;
-    connhelper.query(sql,[], (err, results, fields) => {
+
+page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
+    // console.log(req.files[0].originalname.split('.')[1]);
+    userno=req.body.userno;
+    let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
+    connhelper.query(sql, [('/useravatar/'+req.body.userno+'.'+req.files[0].originalname.split('.')[1]),req.body.userno], (err, results, fields) => {
         if (err) {
             res.send("MySQL 可能語法寫錯了", err);
         } else {
@@ -36,7 +45,6 @@ page.post('/upload/:userno', upload.single('shotUpload'), function (req, res) {
             res.send('大頭貼修改完成');
         }
     });
-    // console.log(req.file);
 });
 
 
