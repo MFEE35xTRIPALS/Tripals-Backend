@@ -8,11 +8,11 @@ var connhelper = require("./config");
 var multer = require('multer');
 var mystorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "public/userno_2");//保存的路徑(目的地)
+        cb(null, "public/useravatar");//保存的路徑(目的地)
     },
     filename: function (req, file, cb) {//編寫檔案名稱
         // var userFileName = Date.now() + '-' + file.originalname;//留下檔案戳記記錄歷程
-        var userFileName='avatar'+'.'+file.originalname.split('.')[1];//留下自己可辨別的檔案
+        var userFileName='2'+'.'+file.originalname.split('.')[1];//留下自己可辨別的檔案
         cb(null, userFileName);
     }
 })
@@ -27,9 +27,8 @@ let upload = multer({
     }
 });
 page.post('/upload', upload.single('shotUpload'), function(req, res) {
-    console.log('okk');
-    console.log(req.file);
-    console.log(req);
+    res.send("大頭貼修改完成");
+    // console.log(req.file);
   });
 
 //select
