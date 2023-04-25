@@ -29,3 +29,7 @@ INSERT INTO `tb_user`( `id`, `password`, `nickname`, `birthday`, `intro`) VALUES
 /* ----- 個人資料 ----- */
 // SELECT (GET)
 SELECT  `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=6;
+
+/* ----- 個人大頭貼 ----- */
+// UPDATE (PUT)
+UPDATE tb_user SET avatar = '/useravatar/2.jpg' WHERE userno = 2;
