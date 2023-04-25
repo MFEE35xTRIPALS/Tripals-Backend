@@ -4,7 +4,7 @@
 var express = require("express");
 var app = express();
 app.listen(3000, function (req, res) {
-  console.log("Tripals: 啟動中");
+	console.log("Tripals: 啟動中");
 });
 
 // -----------------------------------
@@ -15,12 +15,11 @@ var cors = require("cors");
 //   origin: ["http://locathost/"],
 // };
 app.use(cors());
-app.use(express.static('./public'));
+app.use(express.static("./public"));
 
-
-app.get('/',function(req,res){
-  res.send('okk');
-})
+app.get("/", function (req, res) {
+	res.send("okk");
+});
 
 // --------- 引用各分頁的CRUD -----------
 var admin = require("./router/admin"); // 引用，相對路徑
@@ -37,3 +36,6 @@ app.use("/selfpage", selfpage);
 // // -----------------------------------
 var client = require("./router/client-identity");
 app.use("/client", client);
+// -----------------------------------
+var client = require("./router/guide");
+app.use("/guide", client);
