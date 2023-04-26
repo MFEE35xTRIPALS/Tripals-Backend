@@ -5,6 +5,8 @@ var page = express.Router();
 // -----------------------------------
 var connhelper = require("./config");
 // -----------------------------------
+
+// 修改、新增文章
 /* POST */
 // 要先知道取得文章的id
 page.put("/edit/:id", express.json(), function (req, res) {
@@ -24,6 +26,31 @@ page.put("/edit/:id", express.json(), function (req, res) {
 		// const title = req.body.title;
 		// const content = req.body.content;
 		console.log(req.body);
+		res.send("finish");
+	});
+});
+
+// 取得文章
+page.get("/:id", express.json(), function (req, res) {
+	const id = parseInt(req.params.id);
+
+	const sql = `SELECT B.title AS main_title ,B.content AS main_content ,A.location_index ,A.title ,A.content ,A.location ,A.image 
+FROM tb_content_article AS A
+LEFT JOIN tb_main_article AS B ON A.articleno = B.articleno 
+WHERE B.status <> 'report' AND B.articleno=?;`;
+
+	connhelper.query(sql, [id], function (err, result, fields) {
+		if (err) throw err;
+
+		if (result.length === 0) {
+			return res.status(404).send("沒有找到對應的文章編號");
+		}
+		// console.log(res.json(result));
+		res.json(result);
+
+		// const title = req.body.title;
+		// const content = req.body.content;
+		// console.log(req.body);
 		res.send("finish");
 	});
 });

@@ -38,4 +38,4 @@ var client = require("./router/client-identity");
 app.use("/client", client);
 // -----------------------------------
 var client = require("./router/guide");
-app.use("/guide", client); jj
+app.use("/guide", client);
