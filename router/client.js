@@ -10,11 +10,14 @@ let userno;
 var multer = require('multer');
 var mystorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "public/useravatar");//保存的路徑(目的地)
+        // console.log(req.route.path);// '/uploadBanner'或'/upload'
+        if (req.route.path == '/upload') {
+            cb(null, "public/useravatar")
+        }else if(req.route.path =='/uploadBanner'){
+            cb(null, "public/user_banner")
+        };//保存的路徑(目的地)
     },
     filename: function (req, file, cb) {//編寫檔案名稱
-        // console.log(userno);
-        // var userFileName = Date.now() + '-' + file.originalname;//留下檔案戳記記錄歷程
         var userFileName = userno + '.' + file.originalname.split('.')[1];//留下自己可辨別的檔案
         cb(null, userFileName);
     }
@@ -36,7 +39,7 @@ page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
     // userno=req.body.userno;
     let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
-    connhelper.query(sql, [('/useravatar/'+userno+'.'+req.files[0].originalname.split('.')[1]),userno], (err, results, fields) => {
+    connhelper.query(sql, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
         if (err) {
             res.send("MySQL 可能語法寫錯了", err);
         } else {
@@ -45,13 +48,26 @@ page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
         }
     });
 });
+page.post('/uploadBanner', upload.array('shotUpload', 'userno'), function (req, res) {
+    // console.log(req.files[0].originalname.split('.')[1]);
+    // userno=req.body.userno;
+    let sql = `UPDATE tb_user SET banner = ? WHERE userno = ?;`;
+    connhelper.query(sql, [('/user_banner/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
+        if (err) {
+            res.send("MySQL 可能語法寫錯了", err);
+        } else {
+            // console.log(results);
+            res.send('封面照片修改完成');
+        }
+    });
+});
 
 
 //select
 page.get('/avatar', function (req, res) {
-    userno=req.query.userno;
+    userno = req.query.userno;
     // console.log(userno);
-    var sql = "SELECT avatar FROM `tb_user` WHERE userno=?; ";//?接收使用這輸入資料
+    var sql = "SELECT `avatar`,`banner` FROM `tb_user` WHERE userno=?; ";//?接收使用這輸入資料
     connhelper.query(sql,
         [userno],//填入2的位置
         function (err, result, fields) {
