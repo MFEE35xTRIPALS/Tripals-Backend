@@ -13,7 +13,7 @@ var mystorage = multer.diskStorage({
         // console.log(req.route.path);// '/uploadBanner'或'/upload'
         if (req.route.path == '/upload') {
             cb(null, "public/useravatar")
-        }else if(req.route.path =='/uploadBanner'){
+        } else if (req.route.path == '/uploadBanner') {
             cb(null, "public/user_banner")
         };//保存的路徑(目的地)
     },
@@ -38,15 +38,17 @@ let upload = multer({
 page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
     // userno=req.body.userno;
-    let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
-    connhelper.query(sql, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
-        if (err) {
-            res.send("MySQL 可能語法寫錯了", err);
-        } else {
-            // console.log(results);
-            res.send('大頭貼修改完成');
-        }
-    });
+        let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
+        connhelper.query(sql, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
+            if (err) {
+                console.log("MySQL 可能語法寫錯了", err);
+                res.send("伺服端發生錯誤，檔案上傳失敗，請稍後再試。如持續無法上傳請聯繫客服。");
+            } else {
+                // console.log(results);
+                res.send('大頭貼修改完成');
+            }
+        });
+    
 });
 page.post('/uploadBanner', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
