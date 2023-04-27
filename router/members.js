@@ -10,7 +10,7 @@ var connhelper = require("./config");
 /* GET */
 page.get("/", function (req, res) {
   var sql =
-    "SELECT `userno`,  `id`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user` WHERE 1;";
+    "SELECT `userno`,  `id`, `password`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user` WHERE 1;";
 
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
