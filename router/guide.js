@@ -46,29 +46,39 @@ WHERE B.status <> 'report' AND B.articleno=?;`;
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
 		// console.log(res.json(result));
+		const transformedResult = result.map((item) => ({}));
+
+		const newObj = {
+			main_title: "台北美食小吃特搜",
+			main_content: "必吃的台北小吃一定要嚐過！",
+			content: [
+				{
+					location_index: 1,
+					title: "圓環邊蚵仔煎",
+					content:
+						"寧夏夜市裡排隊人氣名店圓環邊蚵仔煎，更榮獲米其林餐盤推薦，來寧夏夜市千萬別錯過！",
+					location: "25.0564052,121.515281",
+					image: null,
+				},
+				{
+					location_index: 2,
+					title: "士林夜市美食",
+					content:
+						"士林夜市裡有許多必吃美食，包括了烤香腸、大餅包小餅、豆花、天婦羅等等，快來一嚐！",
+					location: "25.0879032,121.5242463",
+					image: null,
+				},
+			],
+		};
+
+		res.setHeader("Content-Type", "application/json");
 		res.json(result);
 
 		// const title = req.body.title;
 		// const content = req.body.content;
 		// console.log(req.body);
-		res.send("finish");
+		// res.send("finish");
 	});
 });
 
-//測試put資料用
-const spot = {
-	imgpath: "./public/main_guide/1/1_11.jpg",
-	title: "台南美食之旅",
-	content: "台南美食吃喝玩樂",
-	area: "台南市",
-	hashtag: ["旅遊", "美食"],
-	spots: [
-		{
-			imgpath: "./public/content_guide/11/11_1.jpg",
-			coordinates: "23.011123601783304,120.20032715649646",
-			title: "花園夜市",
-			content: "花園夜市，為臺灣臺南市北區的流動型夜市",
-		},
-	],
-};
 module.exports = page;
