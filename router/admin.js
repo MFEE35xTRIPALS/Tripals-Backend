@@ -48,6 +48,7 @@ page.post("/post", express.urlencoded(), function (req, res) {
 
 //---------
 /* UPDATE */
+// // 這邊userno 先固定1->屆時要回來調整
 //---------
 page.put("/update", express.urlencoded(), function (req, res) {
   console.log(req.body);
@@ -55,7 +56,6 @@ page.put("/update", express.urlencoded(), function (req, res) {
     "UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`=?;";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
-  // // 這邊userno 先固定1->屆時要回來調整
   // console.log(sql);
   connhelper.query(
     sql + sqlAll,
@@ -72,12 +72,11 @@ page.put("/update", express.urlencoded(), function (req, res) {
 });
 
 //---------
-/* DELETE */ //要刪除資料庫，還是改變狀態
+/* DELETE */ //不刪除資料庫，僅是改變狀態
 //---------
 page.delete("/delete", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql = "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
-  // var sql = "DELETE FROM `tb_news` WHERE newsno = ?;";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
   // // 這邊userno 先固定1->屆時要回來調整

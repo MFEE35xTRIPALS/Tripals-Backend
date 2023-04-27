@@ -45,27 +45,26 @@ page.get("/", function (req, res) {
 // });
 
 /* UPDATE */
-// page.post("/update", express.urlencoded(), function (req, res) {
-//   console.log(req.body);
-//   var sql =
-//     "UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`=?;";
-//   var sqlAll =
-//     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
-//   // // 這邊userno 先固定1->屆時要回來調整
-//   // console.log(sql);
-//   connhelper.query(
-//     sql + sqlAll,
-//     [req.body.title, req.body.content, req.body.release, req.body.newsno],
-//     function (err, results, fields) {
-//       if (err) {
-//         res.send("MySQL 可能語法寫錯了", err);
-//       } else {
-//         console.log(results);
-//         res.json(results[1]);
-//       }
-//     }
-//   );
-// });
+page.put("/update", express.urlencoded(), function (req, res) {
+  console.log(req.body);
+  var sql = "UPDATE `tb_user` SET `id`=?,`password`=? WHERE `userno`=?;";
+  var sqlAll =
+    "SELECT `userno`, `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`, `status`, DATE_FORMAT(`date`, '%Y-%m-%d')`date` FROM `tb_user`;";
+  // // 這邊userno 先固定1->屆時要回來調整
+  // console.log(sql);
+  connhelper.query(
+    sql + sqlAll,
+    [req.body.id, req.body.password, req.body.userno],
+    function (err, results, fields) {
+      if (err) {
+        res.send("MySQL 可能語法寫錯了", err);
+      } else {
+        // console.log(results);
+        res.json(results[1]);
+      }
+    }
+  );
+});
 
 /* DELETE */
 // page.post("/delete", express.urlencoded(), function (req, res) {
