@@ -39,13 +39,14 @@ page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
     // userno=req.body.userno;
         let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
-        connhelper.query(sql, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
+        let sqlAll="SELECT `avatar` FROM `tb_user` WHERE userno=?;"
+        connhelper.query(sql+sqlAll, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno,userno], (err, results, fields) => {
             if (err) {
                 console.log("MySQL 可能語法寫錯了", err);
                 res.send("伺服端發生錯誤，檔案上傳失敗，請稍後再試。如持續無法上傳請聯繫客服。");
             } else {
-                // console.log(results);
-                res.send('大頭貼修改完成');
+                // console.log(results[1]);
+                res.json({ myPhotoAlert: '大頭貼修改完成', avatarData: results[1][0] });
             }
         });
     
@@ -54,12 +55,13 @@ page.post('/uploadBanner', upload.array('shotUpload', 'userno'), function (req, 
     // console.log(req.files[0].originalname.split('.')[1]);
     // userno=req.body.userno;
     let sql = `UPDATE tb_user SET banner = ? WHERE userno = ?;`;
-    connhelper.query(sql, [('/user_banner/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno], (err, results, fields) => {
+    let sqlAll="SELECT `banner` FROM `tb_user` WHERE userno=?;"
+    connhelper.query(sql+sqlAll, [('/user_banner/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno,userno], (err, results, fields) => {
         if (err) {
             res.send("MySQL 可能語法寫錯了", err);
         } else {
             // console.log(results);
-            res.send('封面照片修改完成');
+            res.json({ myPhotoAlert: '封面照片修改完成', bannerData: results[1][0] });
         }
     });
 });
@@ -96,10 +98,10 @@ page.get("/identity", function (req, res) {
   
     var sqlAll =
       "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=? ;";
-    console.log("req有抓到nickname" + req.body.nickname);
-    console.log("req有抓到userno" + req.body.userno);
-    console.log("req有抓到intro" + req.body.intro);
-    console.log("req有抓到birthday" + birthday);
+    // console.log("req有抓到nickname" + req.body.nickname);
+    // console.log("req有抓到userno" + req.body.userno);
+    // console.log("req有抓到intro" + req.body.intro);
+    // console.log("req有抓到birthday" + birthday);
     connhelper.query(
       sql + sqlAll,
       [
@@ -114,8 +116,8 @@ page.get("/identity", function (req, res) {
         if (err) {
           res.send("MySQL 可能語法寫錯了", err);
         } else {
-          console.log("結果在這ㄌ裡");
-          console.log(results[1]);
+          // console.log("結果在這ㄌ裡");
+          // console.log(results[1]);
           res.json(results[1]);
         }
       }
