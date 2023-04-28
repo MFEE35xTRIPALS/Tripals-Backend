@@ -14,9 +14,9 @@ var connhelper = require("./config");
 page.get("/identity", function (req, res) {
   // console.log(req.body.userno);
   var sql =
-    "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=6;";
+    "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=?;";
 
-  connhelper.query(sql, [], function (err, result, fields) {
+  connhelper.query(sql, [req.query.userno], function (err, result, fields) {
     if (err) {
       // console.log(req.body.userno);
       res.send("MySQL 可能語法寫錯了", err);
@@ -36,7 +36,7 @@ page.post("/identity/update", express.urlencoded(), function (req, res) {
     "UPDATE `tb_user` SET `id`=?,`password`=?,`nickname`=?,`birthday`=?, `intro`=?,date=now() WHERE `userno`=?;";
 
   var sqlAll =
-    "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=6 ;";
+    "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=? ;";
   console.log("req有抓到nickname" + req.body.nickname);
   console.log("req有抓到userno" + req.body.userno);
   console.log("req有抓到intro" + req.body.intro);
@@ -49,6 +49,7 @@ page.post("/identity/update", express.urlencoded(), function (req, res) {
       req.body.nickname,
       birthday,
       req.body.intro,
+      req.body.userno,
       req.body.userno,
     ],
     function (err, results, fields) {
