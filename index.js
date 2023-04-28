@@ -34,8 +34,8 @@ app.use("/client", client);
 var selfpage = require("./router/selfpage");
 app.use("/selfpage", selfpage);
 // // -----------------------------------
-var client = require("./router/client-identity");
-app.use("/client", client);
+// var client = require("./router/client-identity");
+// app.use("/client", client);
 // -----------------------------------
 var client = require("./router/guide");
 app.use("/guide", client);
