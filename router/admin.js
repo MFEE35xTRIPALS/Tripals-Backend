@@ -13,7 +13,7 @@ var connhelper = require("./config");
 //---------
 page.get("/news", function (req, res) {
   var sql =
-    "SELECT newsno,title, content, tb_news.status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`,SUBSTRING_INDEX(`id`, '@', 1)`userid` FROM `tb_news` INNER JOIN `tb_user` on tb_news.userno=tb_user.userno;";
+    "SELECT newsno,title, content, tb_news.status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`,SUBSTRING_INDEX(`id`, '@', 1)`userid` FROM `tb_news` INNER JOIN `tb_user` on tb_news.userno=tb_user.userno ORDER BY `release` DESC;";
   // "SELECT newsno,title, content, status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`FROM `tb_news` ORDER BY `release` DESC;";
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
