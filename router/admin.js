@@ -5,14 +5,16 @@ var page = express.Router();
 // -----------------------------------
 var connhelper = require("./config");
 // -----------------------------------
-//
+
+// -----------------------------------
+// 最新消息
 // -----------------------------------
 /* GET */
 //---------
-page.get("/", function (req, res) {
+page.get("/news", function (req, res) {
   var sql =
-    "SELECT newsno,title, content, status,DATE_FORMAT(`release`, '%Y-%m-%d') `release` , DATE_FORMAT(`date`, '%Y-%m-%d')`date`FROM `tb_news`;";
-
+    "SELECT newsno,title, content, tb_news.status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`,SUBSTRING_INDEX(`id`, '@', 1)`userid` FROM `tb_news` INNER JOIN `tb_user` on tb_news.userno=tb_user.userno;";
+  // "SELECT newsno,title, content, status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`FROM `tb_news` ORDER BY `release` DESC;";
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
       res.send("MySQL 可能語法寫錯了", err);
@@ -24,14 +26,13 @@ page.get("/", function (req, res) {
 //---------
 /* POST */
 //---------
-page.post("/post", express.urlencoded(), function (req, res) {
+page.post("/news/post", express.urlencoded(), function (req, res) {
   console.log(req.body);
   var sql =
     "INSERT INTO `tb_news`(`userno`, `title`, `content`, `release`)  VALUES (1,?,?,?);";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
   // // 這邊userno 先固定1->屆時要回來調整
-  // console.log(sql);
   connhelper.query(
     sql + sqlAll,
     [req.body.title, req.body.content, req.body.release],
@@ -47,11 +48,10 @@ page.post("/post", express.urlencoded(), function (req, res) {
 });
 
 //---------
-/* UPDATE */
-// // 這邊userno 先固定1->屆時要回來調整
+/* PUT */
 //---------
-page.put("/update", express.urlencoded(), function (req, res) {
-  console.log(req.body);
+page.put("/news/update", express.urlencoded(), function (req, res) {
+  // console.log(req.body);
   var sql =
     "UPDATE `tb_news` SET `title`=?,`content`=?,`release`=?,date=now() WHERE `newsno`=?;";
   var sqlAll =
@@ -74,12 +74,11 @@ page.put("/update", express.urlencoded(), function (req, res) {
 //---------
 /* DELETE */ //不刪除資料庫，僅是改變狀態
 //---------
-page.delete("/delete", express.urlencoded(), function (req, res) {
-  console.log(req.body);
+page.delete("/news/delete", express.urlencoded(), function (req, res) {
+  // console.log(req.body);
   var sql = "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
   var sqlAll =
     "SELECT newsno,title, content, DATE_FORMAT(`release`, '%Y-%m-%d') `date` FROM `tb_news`;";
-  // // 這邊userno 先固定1->屆時要回來調整
   // console.log(sql);
   connhelper.query(
     sql + sqlAll,
@@ -88,7 +87,51 @@ page.delete("/delete", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("MySQL 可能語法寫錯了", err);
       } else {
-        console.log(results[0]);
+        res.json(results[1]);
+      }
+    }
+  );
+});
+
+// -----------------------------------
+// 會員管理
+// -----------------------------------
+/* GET */
+//---------
+page.get("/members", function (req, res) {
+  var sqlAll =
+    "SELECT `userno`,  `id`, `password`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user`; ";
+  var sqlusername =
+    "SELECT  SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=?;";
+
+  connhelper.query(
+    sqlAll + sqlusername,
+    [req.query.userno],
+    function (err, result, fields) {
+      if (err) {
+        res.send("MySQL 可能語法寫錯了", err);
+      } else {
+        console.log(result);
+        res.json(result);
+      }
+    }
+  );
+});
+
+//---------
+/* PUT */
+//---------
+page.put("/members/update", express.urlencoded(), function (req, res) {
+  var sql = "UPDATE `tb_user` SET `id`=?,`password`=? WHERE `userno`=?;";
+  var sqlAll =
+    "SELECT `userno`, `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`, `status`, DATE_FORMAT(`date`, '%Y-%m-%d')`date` FROM `tb_user`;";
+  connhelper.query(
+    sql + sqlAll,
+    [req.body.id, req.body.password, req.body.userno],
+    function (err, results, fields) {
+      if (err) {
+        res.send("MySQL 可能語法寫錯了", err);
+      } else {
         res.json(results[1]);
       }
     }
