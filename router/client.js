@@ -38,6 +38,7 @@ let upload = multer({
 page.post('/upload', upload.array('shotUpload', 'userno'), function (req, res) {
     // console.log(req.files[0].originalname.split('.')[1]);
     // userno=req.body.userno;
+    // console.log(res);
         let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
         let sqlAll="SELECT `avatar` FROM `tb_user` WHERE userno=?;"
         connhelper.query(sql+sqlAll, [('/useravatar/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno,userno], (err, results, fields) => {
@@ -58,7 +59,8 @@ page.post('/uploadBanner', upload.array('shotUpload', 'userno'), function (req, 
     let sqlAll="SELECT `banner` FROM `tb_user` WHERE userno=?;"
     connhelper.query(sql+sqlAll, [('/user_banner/' + userno + '.' + req.files[0].originalname.split('.')[1]), userno,userno], (err, results, fields) => {
         if (err) {
-            res.send("MySQL 可能語法寫錯了", err);
+            console.log("MySQL 可能語法寫錯了", err);
+            res.send("伺服端發生錯誤，檔案上傳失敗，請稍後再試。如持續無法上傳請聯繫客服。");
         } else {
             // console.log(results);
             res.json({ myPhotoAlert: '封面照片修改完成', bannerData: results[1][0] });
