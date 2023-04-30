@@ -21,7 +21,7 @@ page.get('/cards', function (req, res) {
                 let authormessage=result[1];
                 let usermessage=result[2][0].collect?result[2][0].collect.split(','):null;
                 res.json({cardmessage:cardmessage,authormessage:authormessage,usermessage:usermessage});
-                // console.log(result[2][0].collect);
+                // console.log(result[2][0].collect.split(','));
 
             }
         });
