@@ -40,7 +40,6 @@ page.post("/news/post", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("MySQL 可能語法寫錯了", err);
       } else {
-        console.log(results[0]);
         res.json(results[1]);
       }
     }
@@ -64,7 +63,6 @@ page.put("/news/update", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("MySQL 可能語法寫錯了", err);
       } else {
-        console.log(results);
         res.json(results[1]);
       }
     }
@@ -111,7 +109,6 @@ page.get("/members", function (req, res) {
       if (err) {
         res.send("MySQL 可能語法寫錯了", err);
       } else {
-        console.log(result);
         res.json(result);
       }
     }

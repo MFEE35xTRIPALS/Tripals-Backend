@@ -22,15 +22,22 @@ app.get("/", function (req, res) {
 });
 
 // --------- 引用各分頁的CRUD -----------
+/* 管理員後台 */
 var admin = require("./router/admin"); // 引用，相對路徑
 app.use("/admin", admin); // 使用
 // -----------------------------------
+/* 個人後台 */
 var client = require("./router/client");
 app.use("/client", client);
 // -----------------------------------
+/* 個人頁面-前台 */
 var selfpage = require("./router/selfpage");
 app.use("/selfpage", selfpage);
 // -----------------------------------
-var client = require("./router/guide");
-app.use("/guide", client);
+/* 旅遊導覽頁-前台 */
+var articles = require("./router/articles");
+app.use("/articles", articles);
+// -----------------------------------
+var guide = require("./router/guide");
+app.use("/guide", guide);
 // test
