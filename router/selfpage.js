@@ -27,5 +27,21 @@ page.get('/cards', function (req, res) {
         });
 
 });
+page.post('/updateLikes',express.urlencoded(), function (req, res){
+    let sql="UPDATE tb_user SET `collect` = CASE WHEN `collect` LIKE ? THEN TRIM(BOTH ',' FROM REPLACE(REPLACE(`collect`, ? , ''),?, '')) ELSE CONCAT(`collect`, ?) END WHERE `userno` =?;";
+    let sqlAll="SELECT `collect` FROM  `tb_user` WHERE userno=?;";
+    // console.log(req.body);
+    connhelper.query(sql+sqlAll,
+        [`%${req.body.articleno}%`,`,${req.body.articleno}`,req.body.articleno,`,${req.body.articleno}`,req.body.userno,req.body.userno],//填入？的位置
+        function (err, result, fields) {
+            if (err) {
+                res.send('select發生錯誤', err);
+            } else {
+                console.log(result);
+                res.send(result[1][0].collect?result[1][0].collect.split(','):null);
+                // console.log(result[1][0].collect);
+            }
+        });
+})
 
 module.exports = page;

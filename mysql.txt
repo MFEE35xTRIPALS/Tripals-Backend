@@ -34,5 +34,4 @@ SELECT  `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthd
 // UPDATE (PUT)
 UPDATE tb_user SET avatar = '/useravatar/2.jpg' WHERE userno = 2;
 
-SET @n=3;
-SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(`collect`, ',', @n), ',', -1) AS number FROM `tb_user` WHERE @n <= LENGTH(`collect`) - LENGTH(REPLACE(`collect`, ',', '')) + 1;
+UPDATE tb_user SET `collect` = CASE WHEN `collect` LIKE '%4%' THEN TRIM(BOTH ',' FROM REPLACE(REPLACE(`collect`, ',4', ''),'4', '')) ELSE CONCAT(`collect`, ',4') END WHERE `userno` = 5;
