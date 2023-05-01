@@ -14,7 +14,7 @@ async function addArticleAndContents(
 	content,
 	location,
 	image,
-	hashtag,
+	hashtags,
 	status,
 	spots
 ) {
@@ -24,7 +24,7 @@ async function addArticleAndContents(
 		// 開始資料庫交易
 		await connection.beginTransaction();
 		const insertMainSql =
-			"INSERT INTO tb_main_article ( userno, title, content, location, image, hashtag, status) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+			"INSERT INTO tb_main_article ( userno, title, content, location, image, status) VALUES ( ?, ?, ?, ?, ?, ?)";
 		// 新增文章到資料表 tb_main_article
 		const [insertArticleResult] = await connection.query(insertMainSql, [
 			userno,
@@ -32,15 +32,51 @@ async function addArticleAndContents(
 			content,
 			location,
 			image,
-			hashtag,
 			status,
 		]);
 
 		// 取得新增的文章 ID
 		const articleNo = insertArticleResult.insertId;
-		// console.log(articleId);
-		// 逐一新增內容到資料表 tb_content_article
 
+		// hashtag新增處理
+		// console.log(hashtags);
+		await Promise.all(
+			hashtags.map(async (hashtag) => {
+				console.log(hashtag);
+				// 檢查有無重複的hashtag
+				const checkHashtag = "SELECT tagno FROM tb_hashtag WHERE hashtag = ?;";
+				const checkRows = await connection.query(checkHashtag, [hashtag]);
+
+				// 由於我們只需要結果數組中的第一個元素（也就是查詢結果），因此使用這種方式可以簡化程式碼。
+				// const [checkRows, _] = await connection.query(checkHashtag, [hashtag]);
+
+				let hashtagNo;
+				console.log(checkRows);
+				if (checkRows[0].length > 0) {
+					// 如果 Hashtag 已存在，則使用該 Hashtag 的 ID 新增一條關聯記錄
+					hashtagNo = checkRows[0][0].tagno;
+				} else {
+					console.log("no hashtag");
+					// 如果 Hashtag 不存在，則新增一個新的 Hashtag，再使用該 Hashtag 的 ID 新增一條關聯記錄
+					const insertHashtag =
+						"INSERT INTO tb_hashtag (hashtag, status) VALUES (?, 'T');";
+					const [insertResult] = await connection.query(insertHashtag, [
+						hashtag,
+					]);
+					hashtagNo = insertResult.insertId;
+					console.log("hashtagNo:" + insertResult.insertId);
+				}
+
+				// console.log(hashtagNo);
+				// 新增 tb_article_hashtag 關聯紀錄表
+				const insertArticleHashtag =
+					"INSERT INTO tb_article_hashtag (articleno, hashtagno) VALUES (?, ?);";
+
+				await connection.query(insertArticleHashtag, [articleNo, hashtagNo]);
+			})
+		);
+
+		// 逐一新增內容到資料表 tb_content_article
 		await Promise.all(
 			spots.map(async (spot) => {
 				const insertContentSql =
@@ -86,6 +122,9 @@ async function addArticleAndContents(
 		await connection.end();
 
 		console.error("新增文章及內容失敗");
+		// 拋出錯誤讓外層的 catch也能捕獲
+		// throw new Error("新增文章及內容失敗");
+		throw error;
 		// console.error(error);
 	}
 }
@@ -98,7 +137,7 @@ page.post("/add", express.json(), async (req, res) => {
 	const content = req.body.content;
 	const location = req.body.location;
 	const image = req.body.image;
-	const hashtag = req.body.hashtag;
+	const hashtags = req.body.hashtag;
 	const status = req.body.status;
 	const spots = req.body.spots;
 
@@ -109,14 +148,14 @@ page.post("/add", express.json(), async (req, res) => {
 			content,
 			location,
 			image,
-			hashtag,
+			hashtags,
 			status,
 			spots
 		);
 
 		res.status(201).send("新增文章及內容成功");
 	} catch (error) {
-		// console.error(error);
+		console.error(error);
 		res.status(500).send("新增文章及內容失敗");
 	}
 });
