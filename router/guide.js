@@ -164,28 +164,44 @@ page.post("/add", express.json(), async (req, res) => {
 // 先取得文章資料
 page.get("/edit/:id", express.json(), async (req, res) => {
 	const articleNo = parseInt(req.params.id);
-	const connection = await createConnection();
+	console.log(articleNo);
 
-	const sql = `SELECT B.title AS main_title ,B.content AS main_content ,A.location_index ,A.title ,A.content ,A.location ,A.image 
-FROM tb_content_article AS A
-LEFT JOIN tb_main_article AS B ON A.articleno = B.articleno 
-WHERE B.status <> 'report' AND B.articleno=?;`;
+	try {
+		const connection = await createConnection();
+		const sql =
+			"SELECT B.title AS main_title ,B.content AS main_content ,A.location_index ,A.title ,A.content ,A.location ,A.image FROM tb_content_article AS A LEFT JOIN tb_main_article AS B ON A.articleno = B.articleno WHERE B.status <> 'report' AND B.articleno=?;";
 
-	connhelper.query(sql, [id], function (err, result, fields) {
-		if (err) throw err;
+		// 執行查詢文章的 SQL 語句
+		const [result] = await connection.query(sql, [articleNo]);
 
+		// 釋放連線
+		await connection.end();
+
+		// 檢查查詢結果是否為空陣列
 		if (result.length === 0) {
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
-		// console.log(res.json(result));
 
-		res.json(result);
+		const formatResult = {};
+		result.forEach((item) => {
+			formatResult.main_title = item.main_title;
+			formatResult.main_content = item.main_content;
+			formatResult.content = formatResult.content || [];
 
-		// const title = req.body.title;
-		// const content = req.body.content;
-		// console.log(req.body);
-		// res.send("finish");
-	});
+			formatResult.content.push({
+				location_index: item.location_index,
+				title: item.title,
+				content: item.content,
+				location: item.location,
+				image: item.image,
+			});
+		});
+
+		res.json(formatResult);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send("發生錯誤：" + error.message);
+	}
 });
 /* POST */
 // 要先知道取得文章的id
