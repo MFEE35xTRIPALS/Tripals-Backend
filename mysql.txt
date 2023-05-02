@@ -35,3 +35,9 @@ SELECT  `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthd
 UPDATE tb_user SET avatar = '/useravatar/2.jpg' WHERE userno = 2;
 
 UPDATE tb_user SET `collect` = CASE WHEN `collect` LIKE '%4%' THEN TRIM(BOTH ',' FROM REPLACE(REPLACE(`collect`, ',4', ''),'4', '')) ELSE CONCAT(`collect`, ',4') END WHERE `userno` = 5;
+SELECT IF(EXISTS(SELECT * FROM tb_collect WHERE `userno` = 5 AND `articleno` = 7),
+          'exists', 'not exists') AS `result`;
+
+DELETE FROM tb_collect WHERE `userno` = 5 AND `articleno` = 7;
+
+INSERT INTO tb_collect (`userno`, `articleno`) VALUES (5, 7);
