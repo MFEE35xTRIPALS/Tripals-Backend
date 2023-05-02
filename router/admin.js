@@ -98,7 +98,7 @@ page.delete("/news/delete", express.urlencoded(), function (req, res) {
 //---------
 page.get("/members", function (req, res) {
   var sqlAll =
-    "SELECT `userno`,  `id`, `password`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user`; ";
+    "SELECT `userno`,`permission`,  `id`, `password`,  `nickname`, `birthday`,  `status` ,DATE_FORMAT(`date`, '%Y-%m-%d') `date` FROM `tb_user`; ";
   var sqlusername =
     "SELECT  SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=?;";
 
