@@ -36,7 +36,7 @@ page.post('/deleteLikes', express.urlencoded(), function (req, res) {
             if (err) {
                 res.send('select發生錯誤', err);
             } else {
-                console.log('done');
+                res.send('已取消收藏文章');
             }
         })
 });
@@ -48,7 +48,7 @@ page.post('/insertLikes', express.urlencoded(), function (req, res) {
             if (err) {
                 res.send('select發生錯誤', err);
             } else {
-                console.log('done');
+                res.send('已將文章添加到我的收藏，可至個人頁面查看已被您收藏的文章');
             }
         })
 });
