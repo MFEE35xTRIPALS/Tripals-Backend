@@ -41,3 +41,7 @@ SELECT IF(EXISTS(SELECT * FROM tb_collect WHERE `userno` = 5 AND `articleno` = 7
 DELETE FROM tb_collect WHERE `userno` = 5 AND `articleno` = 7;
 
 INSERT INTO tb_collect (`userno`, `articleno`) VALUES (5, 7);
+
+/* ----- 所有文章頁：JOIN ----- */
+// < 依照所選hashtag 渲染，狀態show，IFNULL(nickname,id)AS username  > 
+SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`, `location`, `image`, `view_count`, `like_count` FROM `tb_main_article` right JOIN tb_article_hashtag ON `tb_main_article`.`articleno` =`tb_article_hashtag`.`articleno` join tb_user on tb_user.userno=tb_main_article.userno where `tb_article_hashtag`.`hashtagno`=2 AND tb_main_article.`status`='show';

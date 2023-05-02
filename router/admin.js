@@ -17,7 +17,7 @@ page.get("/news", function (req, res) {
   // "SELECT newsno,title, content, status, DATE_FORMAT(`release`, '%Y-%m-%d') `release`FROM `tb_news` ORDER BY `release` DESC;";
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
-      res.send("MySQL 可能語法寫錯了", err);
+      res.send("<最新消息-渲染Get> MySQL 可能語法寫錯了", err);
     } else {
       res.json(result);
     }
@@ -38,7 +38,7 @@ page.post("/news/post", express.urlencoded(), function (req, res) {
     [req.body.title, req.body.content, req.body.release],
     function (err, results, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<最新消息-發布post>MySQL 可能語法寫錯了", err);
       } else {
         res.json(results[1]);
       }
@@ -61,7 +61,7 @@ page.put("/news/update", express.urlencoded(), function (req, res) {
     [req.body.title, req.body.content, req.body.release, req.body.newsno],
     function (err, results, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<最新消息-更新put>MySQL 可能語法寫錯了", err);
       } else {
         res.json(results[1]);
       }
@@ -83,7 +83,7 @@ page.delete("/news/delete", express.urlencoded(), function (req, res) {
     [req.body.status, req.body.newsno],
     function (err, results, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<最新消息-下架delete>MySQL 可能語法寫錯了", err);
       } else {
         res.json(results[1]);
       }
@@ -107,7 +107,7 @@ page.get("/members", function (req, res) {
     [req.query.userno],
     function (err, result, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<會員管理-渲染get>MySQL 可能語法寫錯了", err);
       } else {
         res.json(result);
       }
@@ -127,7 +127,7 @@ page.put("/members/update", express.urlencoded(), function (req, res) {
     [req.body.id, req.body.password, req.body.userno],
     function (err, results, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
       } else {
         res.json(results[1]);
       }

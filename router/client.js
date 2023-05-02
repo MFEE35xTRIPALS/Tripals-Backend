@@ -115,7 +115,7 @@ page.get("/identity", function (req, res) {
   connhelper.query(sql, [userno], function (err, result, fields) {
     if (err) {
       // console.log(req.body.userno);
-      res.send("MySQL 可能語法寫錯了", err);
+      res.send("<個人資料-渲染get>MySQL 可能語法寫錯了", err);
     } else {
       res.json(result);
     }
@@ -143,7 +143,7 @@ page.post("/identity/update", express.urlencoded(), function (req, res) {
     ],
     function (err, results, fields) {
       if (err) {
-        res.send("MySQL 可能語法寫錯了", err);
+        res.send("<個人資料-更新post>MySQL 可能語法寫錯了", err);
       } else {
         res.json(results[1]);
       }
