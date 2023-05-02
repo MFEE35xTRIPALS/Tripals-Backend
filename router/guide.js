@@ -225,6 +225,7 @@ page.get("/edit/:id", express.json(), async (req, res) => {
 		contentResult.forEach((item) => {
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
+			formatResult.main_image = item.main_image;
 			formatResult.main_title = item.main_title;
 			formatResult.main_content = item.main_content;
 			formatResult.main_location = item.main_location;
@@ -269,36 +270,17 @@ page.put("/edit/:id", express.json(), function (req, res) {
 	});
 });
 
-//測試put資料用
-const spot = {
-	imgpath: "./public/main_guide/1/1_11.jpg",
-	title: "台南美食之旅",
-	content: "台南美食吃喝玩樂",
-	area: "台南市",
-	hashtag: ["旅遊", "美食"],
-	spots: [
-		{
-			imgpath: "./public/content_guide/11/11_1.jpg",
-			coordinates: "23.011123601783304,120.20032715649646",
-			title: "花園夜市",
-			content: "花園夜市，為臺灣臺南市北區的流動型夜市",
-		},
-	],
-};
-
 // 瀏覽文章
 page.get("", express.json(), async (req, res) => {
 	const userNo = parseInt(req.query.userno);
 	const articleNo = parseInt(req.query.articleno);
 	console.log(articleNo);
 
-	// 查詢喜歡過的
-	let likedSql = "";
 	try {
 		const connection = await createConnection();
 
-		// 加入喜歡過的文章
-		likedSql =
+		// 查詢喜歡過的文章
+		const likedSql =
 			",(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked";
 
 		// 執行查詢文章的 SQL 語句
@@ -311,7 +293,7 @@ page.get("", express.json(), async (req, res) => {
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
 
 		console.log(contentResult);
-		// 釋放連線
+		// 關閉連線
 		await connection.end();
 
 		// 檢查查詢結果是否為空陣列
@@ -323,6 +305,7 @@ page.get("", express.json(), async (req, res) => {
 		contentResult.forEach((item) => {
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
+			formatResult.main_image = item.main_image;
 			formatResult.main_title = item.main_title;
 			formatResult.main_content = item.main_content;
 			formatResult.main_location = item.main_location;
