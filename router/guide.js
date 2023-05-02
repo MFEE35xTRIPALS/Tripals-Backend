@@ -130,6 +130,40 @@ async function addArticleAndContents(
 }
 //#endregion
 
+// 文章查詢語法
+const selectArticle = `            
+SELECT
+    user.id,
+    CASE
+	    WHEN user.nickname IS NULL THEN SUBSTRING_INDEX(user.id, '@', 1)
+	    WHEN TRIM(user.nickname) = '' THEN SUBSTRING_INDEX(user.id, '@', 1)
+	    ELSE user.nickname
+	END AS nickname,
+    main.articleno AS main_articleno,
+    main.title AS main_title,
+    main.content AS main_content,
+    main.location AS main_location,
+    main.image AS main_image,
+    content.contentno,
+    content.location_index,
+    content.title,
+    content.content,
+    content.location,
+    content.image,
+    GROUP_CONCAT(hashtag.hashtag ORDER BY hashtag.hashtag ASC SEPARATOR ',') AS hashtags`;
+const fromArticle = `
+FROM
+    tb_main_article AS main
+    LEFT JOIN tb_content_article AS content ON main.articleno = content.articleno
+    LEFT JOIN tb_user AS user ON main.userno = user.userno
+    LEFT JOIN tb_article_hashtag AS article_hashtag ON article_hashtag.articleno = main.articleno
+    LEFT JOIN tb_hashtag AS hashtag ON article_hashtag.hashtagno = hashtag.tagno
+WHERE
+    main.status <> 'report' AND main.articleno = ?
+GROUP BY
+    user.id ,user.nickname ,main.articleno ,main_title ,main_content ,main_location ,main_image ,content.contentno ,content.location_index ,content.title ,content.content ,content.location ,content.image;
+`;
+
 // 新增文章和內容的 API
 page.post("/add", express.json(), async (req, res) => {
 	const userno = req.body.userno;
@@ -168,27 +202,36 @@ page.get("/edit/:id", express.json(), async (req, res) => {
 
 	try {
 		const connection = await createConnection();
-		const sql =
-			"SELECT B.title AS main_title ,B.content AS main_content ,A.location_index ,A.title ,A.content ,A.location ,A.image FROM tb_content_article AS A LEFT JOIN tb_main_article AS B ON A.articleno = B.articleno WHERE B.status <> 'report' AND B.articleno=?;";
 
 		// 執行查詢文章的 SQL 語句
-		const [result] = await connection.query(sql, [articleNo]);
+		const [contentResult] = await connection.query(
+			selectArticle + fromArticle,
+			[articleNo]
+		);
 
+		// 執行查詢文章的hashtag SQL 語句
+		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
+
+		console.log(contentResult);
 		// 釋放連線
 		await connection.end();
 
 		// 檢查查詢結果是否為空陣列
-		if (result.length === 0) {
+		if (contentResult.length === 0) {
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
 
 		const formatResult = {};
-		result.forEach((item) => {
+		contentResult.forEach((item) => {
+			formatResult.id = item.id;
+			formatResult.nickname = item.nickname;
 			formatResult.main_title = item.main_title;
 			formatResult.main_content = item.main_content;
-			formatResult.content = formatResult.content || [];
+			formatResult.main_location = item.main_location;
+			formatResult.hashtags = item.hashtags ? item.hashtags.split(",") : [];
+			formatResult.spots = formatResult.spots || [];
 
-			formatResult.content.push({
+			formatResult.spots.push({
 				location_index: item.location_index,
 				title: item.title,
 				content: item.content,
@@ -244,29 +287,63 @@ const spot = {
 };
 
 // 瀏覽文章
-page.get("/view/:id", express.json(), function (req, res) {
-	const id = parseInt(req.params.id);
+page.get("", express.json(), async (req, res) => {
+	const userNo = parseInt(req.query.userno);
+	const articleNo = parseInt(req.query.articleno);
+	console.log(articleNo);
 
-	const sql = `SELECT B.title AS main_title ,B.content AS main_content ,A.location_index ,A.title ,A.content ,A.location ,A.image 
-FROM tb_content_article AS A
-LEFT JOIN tb_main_article AS B ON A.articleno = B.articleno 
-WHERE B.status <> 'report' AND B.articleno=?;`;
+	// 查詢喜歡過的
+	let likedSql = "";
+	try {
+		const connection = await createConnection();
 
-	connhelper.query(sql, [id], function (err, result, fields) {
-		if (err) throw err;
+		// 加入喜歡過的文章
+		likedSql =
+			",(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked";
 
-		if (result.length === 0) {
+		// 執行查詢文章的 SQL 語句
+		const [contentResult] = await connection.query(
+			selectArticle + likedSql + fromArticle,
+			[userNo, articleNo, articleNo]
+		);
+
+		// 執行查詢文章的hashtag SQL 語句
+		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
+
+		console.log(contentResult);
+		// 釋放連線
+		await connection.end();
+
+		// 檢查查詢結果是否為空陣列
+		if (contentResult.length === 0) {
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
-		// console.log(res.json(result));
 
-		res.json(result);
+		const formatResult = {};
+		contentResult.forEach((item) => {
+			formatResult.id = item.id;
+			formatResult.nickname = item.nickname;
+			formatResult.main_title = item.main_title;
+			formatResult.main_content = item.main_content;
+			formatResult.main_location = item.main_location;
+			formatResult.liked = item.liked ? true : false;
+			formatResult.hashtags = item.hashtags ? item.hashtags.split(",") : [];
+			formatResult.spots = formatResult.spots || [];
 
-		// const title = req.body.title;
-		// const content = req.body.content;
-		// console.log(req.body);
-		// res.send("finish");
-	});
+			formatResult.spots.push({
+				location_index: item.location_index,
+				title: item.title,
+				content: item.content,
+				location: item.location,
+				image: item.image,
+			});
+		});
+
+		res.json(formatResult);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send("發生錯誤：" + error.message);
+	}
 });
 
 module.exports = page;
