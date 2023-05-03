@@ -6,9 +6,9 @@ var connhelper = require("./config");
 let userno;
 // select
 page.get('/cards', function (req, res) {
-    // console.log(req.query.userno);
+    // console.log(req.query);
     // userno = req.query.userno;
-    var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,`like_count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`date` DESC;"//?接收使用這輸入資料
+    var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=2 AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"//?接收使用這輸入資料
     var sql2 = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`intro`,`banner`,`nickname`,`avatar` FROM `tb_user`  WHERE `userno`=?;"//?接收使用這輸入資料
     var sql3 = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";//?接收登入者的id
     connhelper.query(sql + sql2 + sql3,
@@ -29,7 +29,7 @@ page.get('/cards', function (req, res) {
 
 });
 page.post('/deleteLikes', express.urlencoded(), function (req, res) {
-    console.log(req.body)
+    // console.log(req.body)
     let sql = "DELETE FROM `tb_collect` WHERE `userno`=? AND `articleno`=?;";
     connhelper.query(sql,
         [req.body.userno, req.body.articleno],//填入？的位置

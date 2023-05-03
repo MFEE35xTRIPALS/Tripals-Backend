@@ -34,6 +34,7 @@ SELECT  `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthd
 // UPDATE (PUT)
 UPDATE tb_user SET avatar = '/useravatar/2.jpg' WHERE userno = 2;
 
+<<<<<<< Updated upstream
 UPDATE tb_user SET `collect` = CASE WHEN `collect` LIKE '%4%' THEN TRIM(BOTH ',' FROM REPLACE(REPLACE(`collect`, ',4', ''),'4', '')) ELSE CONCAT(`collect`, ',4') END WHERE `userno` = 5;
 SELECT IF(EXISTS(SELECT * FROM tb_collect WHERE `userno` = 5 AND `articleno` = 7),
           'exists', 'not exists') AS `result`;
@@ -45,3 +46,7 @@ INSERT INTO tb_collect (`userno`, `articleno`) VALUES (5, 7);
 /* ----- 所有文章頁：JOIN ----- */
 // < 依照所選hashtag 渲染，狀態show，IFNULL(nickname,id)AS username  > 
 SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`, `location`, `image`, `view_count`, `like_count` FROM `tb_main_article` right JOIN tb_article_hashtag ON `tb_main_article`.`articleno` =`tb_article_hashtag`.`articleno` join tb_user on tb_user.userno=tb_main_article.userno where `tb_article_hashtag`.`hashtagno`=2 AND tb_main_article.`status`='show';
+=======
+SELECT COUNT(*) AS `collect` FROM `tb_collect` WHERE `articleno` = 6;
+SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno` AND `tb_collect`.`articleno` LIKE CONCAT('%', `tb_main_article`.`articleno`, '%')) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=2 AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;
+>>>>>>> Stashed changes
