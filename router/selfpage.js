@@ -17,10 +17,10 @@ page.get('/cards', function (req, res) {
             if (err) {
                 res.send('select發生錯誤', err);
             } else {
-                // console.log(result[2]);
+                // console.log(result[2].map(e=>e.articleno));
                 let cardmessage = result[0];
                 let authormessage = result[1];
-                let usermessage = result[2];
+                let usermessage = result[2].map(e=>e.articleno);
                 res.json({ cardmessage: cardmessage, authormessage: authormessage, usermessage: usermessage });
                 // console.log(result[2][0].collect.split(','));
 
@@ -29,7 +29,7 @@ page.get('/cards', function (req, res) {
 
 });
 page.post('/deleteLikes', express.urlencoded(), function (req, res) {
-    console.log(req.body)
+    // console.log(req.body)
     let sql = "DELETE FROM `tb_collect` WHERE `userno`=? AND `articleno`=?;";
     let sqlAll = "SELECT COUNT(*) AS `collect` FROM `tb_collect` WHERE `tb_collect`.`articleno` = ?;"
     connhelper.query(sql+sqlAll,
@@ -43,7 +43,7 @@ page.post('/deleteLikes', express.urlencoded(), function (req, res) {
         })
 });
 page.post('/insertLikes', express.urlencoded(), function (req, res) {
-        console.log(req.body)
+        // console.log(req.body)
     let sql = "INSERT INTO `tb_collect`(`userno`, `articleno`) VALUES (?,?);";
     let sqlAll = "SELECT COUNT(*) AS `collect` FROM `tb_collect` WHERE `tb_collect`.`articleno` = ?;"
     connhelper.query(sql+sqlAll,
