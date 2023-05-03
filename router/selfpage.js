@@ -31,27 +31,28 @@ page.get('/cards', function (req, res) {
 page.post('/deleteLikes', express.urlencoded(), function (req, res) {
     console.log(req.body)
     let sql = "DELETE FROM `tb_collect` WHERE `userno`=? AND `articleno`=?;";
-    connhelper.query(sql,
-        [req.body.userno, req.body.articleno],//填入？的位置
+    let sqlAll = "SELECT COUNT(*) AS `collect` FROM `tb_collect` WHERE `tb_collect`.`articleno` = ?;"
+    connhelper.query(sql+sqlAll,
+        [req.body.userno, req.body.articleno,req.body.articleno],//填入？的位置
         function (err, result, fields) {
             if (err) {
                 res.send('delete發生錯誤', err);
             } else {
-                console.log(result)
-                res.send('已取消收藏文章');
+                res.json({likesalert:"已取消收藏文章",likesCount:result[1][0]})
             }
         })
 });
 page.post('/insertLikes', express.urlencoded(), function (req, res) {
         console.log(req.body)
-    let sql = "INSERT INTO `tb_collect`(`userno`, `articleno`) VALUES (?,?);"
-    connhelper.query(sql,
-        [req.body.userno, req.body.articleno],//填入？的位置
+    let sql = "INSERT INTO `tb_collect`(`userno`, `articleno`) VALUES (?,?);";
+    let sqlAll = "SELECT COUNT(*) AS `collect` FROM `tb_collect` WHERE `tb_collect`.`articleno` = ?;"
+    connhelper.query(sql+sqlAll,
+        [req.body.userno, req.body.articleno,req.body.articleno],//填入？的位置
         function (err, result, fields) {
             if (err) {
                 res.send('update發生錯誤', err);
             } else {
-                res.send('已將文章添加到我的收藏，可至個人頁面查看已被您收藏的文章');
+                res.json({likesalert:"已將文章添加到我的收藏，可至個人頁面查看已被您收藏的文章",likesCount:result[1][0]})
             }
         })
 });
