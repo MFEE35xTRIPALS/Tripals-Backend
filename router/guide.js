@@ -42,32 +42,10 @@ async function addArticleAndContents(
 		// console.log(hashtags);
 		await Promise.all(
 			hashtags.map(async (hashtag) => {
-				console.log(hashtag);
-				// 檢查有無重複的hashtag
-				const checkHashtag = "SELECT tagno FROM tb_hashtag WHERE hashtag = ?;";
-				const checkRows = await connection.query(checkHashtag, [hashtag]);
+				// console.log(hashtag);
 
-				// 由於我們只需要結果數組中的第一個元素（也就是查詢結果），因此使用這種方式可以簡化程式碼。
-				// const [checkRows, _] = await connection.query(checkHashtag, [hashtag]);
+				let hashtagNo = await addHashtagAndNo(connection, hashtag);
 
-				let hashtagNo;
-				console.log(checkRows);
-				if (checkRows[0].length > 0) {
-					// 如果 Hashtag 已存在，則使用該 Hashtag 的 ID 新增一條關聯記錄
-					hashtagNo = checkRows[0][0].tagno;
-				} else {
-					console.log("no hashtag");
-					// 如果 Hashtag 不存在，則新增一個新的 Hashtag，再使用該 Hashtag 的 ID 新增一條關聯記錄
-					const insertHashtag =
-						"INSERT INTO tb_hashtag (hashtag, status) VALUES (?, 'T');";
-					const [insertResult] = await connection.query(insertHashtag, [
-						hashtag,
-					]);
-					hashtagNo = insertResult.insertId;
-					console.log("hashtagNo:" + insertResult.insertId);
-				}
-
-				// console.log(hashtagNo);
 				// 新增 tb_article_hashtag 關聯紀錄表
 				const insertArticleHashtag =
 					"INSERT INTO tb_article_hashtag (articleno, hashtagno) VALUES (?, ?);";
@@ -129,6 +107,33 @@ async function addArticleAndContents(
 	}
 }
 //#endregion
+
+async function addHashtagAndNo(connection, hashtag) {
+	console.log(hashtag);
+	// 檢查有無重複的hashtag
+	const checkHashtag = "SELECT tagno FROM tb_hashtag WHERE hashtag = ?;";
+	const checkRows = await connection.query(checkHashtag, [hashtag]);
+
+	// 由於我們只需要結果數組中的第一個元素（也就是查詢結果），因此使用這種方式可以簡化程式碼。
+	// const [checkRows, _] = await connection.query(checkHashtag, [hashtag]);
+
+	let hashtagNo;
+	console.log(checkRows);
+	if (checkRows[0].length > 0) {
+		// 如果 Hashtag 已存在，則使用該 Hashtag 的 ID 新增一條關聯記錄
+		hashtagNo = checkRows[0][0].tagno;
+	} else {
+		console.log("no hashtag");
+		// 如果 Hashtag 不存在，則新增一個新的 Hashtag，再使用該 Hashtag 的 ID 新增一條關聯記錄
+		const insertHashtag =
+			"INSERT INTO tb_hashtag (hashtag, status) VALUES (?, 'T');";
+		const [insertResult] = await connection.query(insertHashtag, [hashtag]);
+		hashtagNo = insertResult.insertId;
+		console.log("hashtagNo:" + insertResult.insertId);
+	}
+
+	return hashtagNo;
+}
 
 // 新增文章和內容的 API
 page.post("/add", express.json(), async (req, res) => {
