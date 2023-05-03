@@ -130,40 +130,6 @@ async function addArticleAndContents(
 }
 //#endregion
 
-// 文章查詢語法
-const selectArticle = `            
-SELECT
-    user.id,
-    CASE
-	    WHEN user.nickname IS NULL THEN SUBSTRING_INDEX(user.id, '@', 1)
-	    WHEN TRIM(user.nickname) = '' THEN SUBSTRING_INDEX(user.id, '@', 1)
-	    ELSE user.nickname
-	END AS nickname,
-    main.articleno AS main_articleno,
-    main.title AS main_title,
-    main.content AS main_content,
-    main.location AS main_location,
-    main.image AS main_image,
-    content.contentno,
-    content.location_index,
-    content.title,
-    content.content,
-    content.location,
-    content.image,
-    GROUP_CONCAT(hashtag.hashtag ORDER BY hashtag.hashtag ASC SEPARATOR ',') AS hashtags`;
-const fromArticle = `
-FROM
-    tb_main_article AS main
-    LEFT JOIN tb_content_article AS content ON main.articleno = content.articleno
-    LEFT JOIN tb_user AS user ON main.userno = user.userno
-    LEFT JOIN tb_article_hashtag AS article_hashtag ON article_hashtag.articleno = main.articleno
-    LEFT JOIN tb_hashtag AS hashtag ON article_hashtag.hashtagno = hashtag.tagno
-WHERE
-    main.status <> 'report' AND main.articleno = ?
-GROUP BY
-    user.id ,user.nickname ,main.articleno ,main_title ,main_content ,main_location ,main_image ,content.contentno ,content.location_index ,content.title ,content.content ,content.location ,content.image;
-`;
-
 // 新增文章和內容的 API
 page.post("/add", express.json(), async (req, res) => {
 	const userno = req.body.userno;
@@ -203,11 +169,10 @@ page.get("/edit/:id", express.json(), async (req, res) => {
 	try {
 		const connection = await createConnection();
 
+		const sql =
+			"SELECT * FROM view_guide WHERE main_articleno = ? ORDER BY location_index";
 		// 執行查詢文章的 SQL 語句
-		const [contentResult] = await connection.query(
-			selectArticle + fromArticle,
-			[articleNo]
-		);
+		const [contentResult] = await connection.query(sql, [articleNo]);
 
 		// 執行查詢文章的hashtag SQL 語句
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
@@ -247,7 +212,8 @@ page.get("/edit/:id", express.json(), async (req, res) => {
 		res.status(500).send("發生錯誤：" + error.message);
 	}
 });
-/* POST */
+
+// 更新文章
 // 要先知道取得文章的id
 page.put("/edit/:id", express.json(), function (req, res) {
 	const id = parseInt(req.params.id);
@@ -280,14 +246,15 @@ page.get("", express.json(), async (req, res) => {
 		const connection = await createConnection();
 
 		// 查詢喜歡過的文章
-		const likedSql =
-			",(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked";
+		const sql =
+			"SELECT *,(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked FROM view_guide WHERE main_articleno = ? ORDER BY location_index;";
 
 		// 執行查詢文章的 SQL 語句
-		const [contentResult] = await connection.query(
-			selectArticle + likedSql + fromArticle,
-			[userNo, articleNo, articleNo]
-		);
+		const [contentResult] = await connection.query(sql, [
+			userNo,
+			articleNo,
+			articleNo,
+		]);
 
 		// 執行查詢文章的hashtag SQL 語句
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
@@ -305,6 +272,7 @@ page.get("", express.json(), async (req, res) => {
 		contentResult.forEach((item) => {
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
+			formatResult.avatar = item.avatar;
 			formatResult.main_image = item.main_image;
 			formatResult.main_title = item.main_title;
 			formatResult.main_content = item.main_content;
