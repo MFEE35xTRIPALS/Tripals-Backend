@@ -16,7 +16,7 @@ page.get('/cards', function (req, res) {
       if (err) {
         res.send('select發生錯誤', err);
       } else {
-        console.log(result);
+        // console.log(result);
         let cardmessage = result[0];
         let authormessage = result[1];
         let usermessage = result[2].map(e => e.articleno);
