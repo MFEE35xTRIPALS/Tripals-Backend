@@ -53,3 +53,5 @@ JOIN `tb_article_hashtag` ON `tb_hashtag`.`tagno` = `tb_article_hashtag`.`hashta
 WHERE `tb_hashtag`.`status` = 'T'
 GROUP BY `tb_hashtag`.`tagno`
 ORDER BY `count`DESC;
+
+SELECT SUBSTRING_INDEX(`id`, '@', 1) AS `username`, `tb_main_article`.`date`, `articleno`, `nickname`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` WHERE `tb_main_article`.`articleno` IN (SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = 2) AND `tb_main_article`.`status` = 'show' ORDER BY `tb_main_article`.`articleno` DESC;
