@@ -7,7 +7,7 @@ let userno;
 // select
 page.get('/cards', function (req, res) {
   userno = req.query.userno;
-  var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"//?接收使用這輸入資料
+  var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"//?接收使用這輸入資料
   var sql2 = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`intro`,`banner`,`nickname`,`avatar` FROM `tb_user`  WHERE `userno`=?;"//?接收使用這輸入資料
   var sql3 = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";//?接收登入者的id
   connhelper.query(sql + sql2 + sql3,
