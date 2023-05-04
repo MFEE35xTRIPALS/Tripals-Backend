@@ -13,7 +13,7 @@ var connhelper = require("./config");
 //---------
 page.post("/hots", express.urlencoded(), function (req, res) {
   var sql =
-    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `like_count` DESC;";
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `like_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
 
   connhelper.query(
@@ -35,7 +35,7 @@ page.post("/hots", express.urlencoded(), function (req, res) {
 //---------
 page.post("/views", express.urlencoded(), function (req, res) {
   var sql =
-    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
 
   connhelper.query(
@@ -51,7 +51,7 @@ page.post("/views", express.urlencoded(), function (req, res) {
   );
 });
 // -----------------------------------
-// Hashtags
+// Hashtags 8個顯示
 // -----------------------------------
 /* GET */
 //---------
@@ -60,7 +60,7 @@ page.get("/hashtags", function (req, res) {
     "SELECT `tb_hashtag`.`tagno`, `tb_hashtag`.`hashtag`, count(`tb_article_hashtag`.`hashtagno`) as `count` FROM `tb_hashtag` JOIN `tb_article_hashtag` ON `tb_hashtag`.`tagno` = `tb_article_hashtag`.`hashtagno` WHERE `tb_hashtag`.`status` = 'T' GROUP BY `tb_hashtag`.`tagno` ORDER BY `count`DESC LIMIT 8;";
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
-      res.send("<hashtag-隨機8個渲染 Get>MySQL 可能語法寫錯了", err);
+      res.send("<hashtag-8個 Get>MySQL 可能語法寫錯了", err);
     } else {
       res.json(result);
     }
@@ -73,7 +73,7 @@ page.get("/hashtags", function (req, res) {
 //---------
 page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
   var sql =
-    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count` FROM `tb_main_article` right JOIN `tb_article_hashtag` ON `tb_main_article`.`articleno` =`tb_article_hashtag`.`articleno` join `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno` where `tb_article_hashtag`.`hashtagno`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count` FROM `tb_main_article` right JOIN `tb_article_hashtag` ON `tb_main_article`.`articleno` =`tb_article_hashtag`.`articleno` join `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno` where `tb_article_hashtag`.`hashtagno`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
   connhelper.query(
     sql + sqllike,
@@ -94,7 +94,7 @@ page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
 //---------
 page.post("/city", express.urlencoded(), function (req, res) {
   var sql =
-    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username` ,`userno` , `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
   connhelper.query(
     sql + sqllike,
