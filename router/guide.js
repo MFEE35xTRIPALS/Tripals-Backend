@@ -497,7 +497,8 @@ page.post("/upload/main", mainUpload.single("mainImage"), (req, res) => {
 	// 主要文章上傳處理邏輯;
 	if (req.file) {
 		// 如果成功上傳檔案，回傳檔案路徑
-		res.json({ path: req.file.path });
+		// res.json({ path: req.file.path });
+		res.send("成功");
 	} else {
 		// 如果上傳失敗，回傳錯誤訊息
 		res.status(400).json({ error: "上傳失敗" });
