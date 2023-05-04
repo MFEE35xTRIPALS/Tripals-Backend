@@ -5,56 +5,27 @@ var page = express.Router();
 var connhelper = require("./config");
 let userno;
 // select
-<<<<<<< HEAD
-page.get("/cards", function (req, res) {
-  // console.log(req.query.userno);
-  // userno = req.query.userno;
-  var sql =
-    "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"; //?接收使用這輸入資料
-  var sql2 =
-    "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`intro`,`banner`,`nickname`,`avatar` FROM `tb_user`  WHERE `userno`=?;"; //?接收使用這輸入資料
-  var sql3 = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;"; //?接收登入者的id
-  connhelper.query(
-    sql + sql2 + sql3,
-    [req.query.authorno, req.query.authorno, req.query.userno], //填入？的位置
+page.get('/cards', function (req, res) {
+  userno = req.query.userno;
+  var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"//?接收使用這輸入資料
+  var sql2 = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`intro`,`banner`,`nickname`,`avatar` FROM `tb_user`  WHERE `userno`=?;"//?接收使用這輸入資料
+  var sql3 = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";//?接收登入者的id
+  connhelper.query(sql + sql2 + sql3,
+    [req.query.authorno, req.query.authorno, req.query.userno],//填入？的位置
     function (err, result, fields) {
       if (err) {
-        res.send("select發生錯誤", err);
+        res.send('select發生錯誤', err);
       } else {
-        // console.log(result[2].map(e=>e.articleno));
+        console.log(result);
         let cardmessage = result[0];
         let authormessage = result[1];
-        let usermessage = result[2].map((e) => e.articleno);
-        res.json({
-          cardmessage: cardmessage,
-          authormessage: authormessage,
-          usermessage: usermessage,
-=======
-page.get('/cards', function (req, res) {
-    userno = req.query.userno;
-    var sql = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`tb_main_article`.`date`,`articleno`,`nickname`,`avatar`,`tb_main_article`.`userno`,`title`,`image`,`view_count`,(SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno`=`tb_main_article`.`userno` WHERE `tb_main_article`.`userno`=? AND `tb_main_article`.`status`='show' ORDER BY `tb_main_article`.`articleno` DESC;"//?接收使用這輸入資料
-    var sql2 = "SELECT SUBSTRING_INDEX(`id`, '@', 1)`username`,`intro`,`banner`,`nickname`,`avatar` FROM `tb_user`  WHERE `userno`=?;"//?接收使用這輸入資料
-    var sql3 = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";//?接收登入者的id
-    connhelper.query(sql + sql2 + sql3,
-        [req.query.authorno, req.query.authorno, req.query.userno],//填入？的位置
-        function (err, result, fields) {
-            if (err) {
-                res.send('select發生錯誤', err);
-            } else {
-                // console.log(result[2].map(e=>e.articleno));
-                let cardmessage = result[0];
-                let authormessage = result[1];
-                let usermessage = result[2].map(e=>e.articleno);
-                res.json({ cardmessage: cardmessage, authormessage: authormessage, usermessage: usermessage });
-                // console.log(result[2][0].collect.split(','));
-
-            }
->>>>>>> f881f9c02588f242a392eabc7df6a80d89890575
-        });
+        let usermessage = result[2].map(e => e.articleno);
+        res.json({ cardmessage: cardmessage, authormessage: authormessage, usermessage: usermessage });
         // console.log(result[2][0].collect.split(','));
+
       }
-    }
-  );
+    });
+  // console.log(result[2][0].collect.split(','));
 });
 page.post("/deleteLikes", express.urlencoded(), function (req, res) {
   // console.log(req.body)
@@ -95,24 +66,18 @@ page.post("/insertLikes", express.urlencoded(), function (req, res) {
   );
 });
 
-<<<<<<< HEAD
-page.post("/updateViews", express.urlencoded(), function (req, res) {});
-
-module.exports = page;
-=======
-page.post('/updateViews',express.urlencoded(),function(req,res){
-// console.log(req.body)
-let sql = "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno`=?;";
-connhelper.query(sql,
+page.post('/updateViews', express.urlencoded(), function (req, res) {
+  // console.log(req.body)
+  let sql = "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno`=?;";
+  connhelper.query(sql,
     [req.body.articleno],//填入？的位置
     function (err, result, fields) {
-        if (err) {
-            res.send('update發生錯誤', err);
-        } else {
-            res.end();
-        }
+      if (err) {
+        res.send('update發生錯誤', err);
+      } else {
+        res.end();
+      }
     })
 })
 
 module.exports = page;
->>>>>>> f881f9c02588f242a392eabc7df6a80d89890575
