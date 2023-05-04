@@ -57,4 +57,8 @@ page.post('/insertLikes', express.urlencoded(), function (req, res) {
         })
 });
 
+page.post('/updateViews',express.urlencoded(),function(req,res){
+
+})
+
 module.exports = page;
