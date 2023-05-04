@@ -48,17 +48,21 @@ page.get("/hashtags/:tagno", function (req, res) {
 //---------
 
 page.post("/city", express.urlencoded(), function (req, res) {
-  console.log(req.body.city);
   var sql =
-    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`, `view_count`, `like_count` FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno` where `location`=? AND `tb_main_article`.`status`='show';";
-  connhelper.query(sql, [req.body.city], function (err, result, fields) {
-    if (err) {
-      res.send("<hashtag-選取之後Get> MySQL 可能語法寫錯了", err);
-    } else {
-      console.log(result);
-      res.json(result);
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show';";
+  var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
+  connhelper.query(
+    sql + sqllike,
+    [req.body.city, req.body.userno],
+    function (err, result, fields) {
+      if (err) {
+        res.send("<hashtag-選取之後Get> MySQL 可能語法寫錯了", err);
+      } else {
+        console.log(result[0]);
+        res.json(result[0]);
+      }
     }
-  });
+  );
 });
 
 module.exports = page;
