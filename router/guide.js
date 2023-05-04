@@ -1,3 +1,5 @@
+var path = require("path");
+var fs = require("fs");
 var express = require("express");
 var page = express.Router();
 // -----------------------------------
@@ -5,7 +7,9 @@ var page = express.Router();
 // -----------------------------------
 var { createConnection } = require("./mysql2_config");
 // -----------------------------------
-
+var multer = require("multer");
+const { send } = require("process");
+// -----------------------------------
 //#region 新增文章、內文
 // 新增文章和內文的函式
 async function addArticleAndContents(
@@ -366,7 +370,7 @@ page.patch("/edit/:id", express.json(), async (req, res) => {
 page.get("", express.json(), async (req, res) => {
 	const userNo = parseInt(req.query.userno);
 	const articleNo = parseInt(req.query.articleno);
-	console.log(articleNo);
+	// console.log(articleNo);
 
 	try {
 		const connection = await createConnection();
@@ -385,7 +389,7 @@ page.get("", express.json(), async (req, res) => {
 		// 執行查詢文章的hashtag SQL 語句
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
 
-		console.log(contentResult);
+		// console.log(contentResult);
 		// 關閉連線
 		await connection.end();
 
@@ -424,6 +428,101 @@ page.get("", express.json(), async (req, res) => {
 		res.status(500).send("發生錯誤：" + error.message);
 	}
 });
+
+//#region 圖片上傳
+const mainStorage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		// console.log("Upload test");
+		const mainFolderPath = path.join(
+			"public",
+			"temp",
+			"main"
+			// req.body.mainId.toString()
+		);
+		if (!fs.existsSync(mainFolderPath)) {
+			fs.mkdirSync(mainFolderPath, { recursive: true });
+		}
+		cb(null, mainFolderPath);
+	},
+	filename: function (req, file, cb) {
+		cb(
+			null,
+			"main_" +
+				req.query.main_articleno.toString() +
+				path.extname(file.originalname)
+		);
+	},
+});
+
+const contentStorage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		const contentFolderPath = path.join(
+			"public",
+			"temp",
+			"content",
+			req.body.main_articleno.toString()
+		);
+		if (!fs.existsSync(contentFolderPath)) {
+			fs.mkdirSync(contentFolderPath, { recursive: true });
+		}
+		cb(null, contentFolderPath);
+	},
+	filename: function (req, file, cb) {
+		cb(null, contentno + path.extname(file.originalname));
+	},
+});
+
+// 定義檔案過濾，只允許圖片類型
+const fileFilter = function (req, file, cb) {
+	const filetypes = /jpeg|jpg|png/;
+	const mimetype = filetypes.test(file.mimetype);
+	const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+	if (mimetype && extname) {
+		return cb(null, true);
+	}
+	cb(new Error("只允許上傳圖片類型的檔案"));
+};
+
+const mainUpload = multer({ storage: mainStorage, fileFilter: fileFilter });
+const contentUpload = multer({
+	storage: contentStorage,
+	fileFilter: fileFilter,
+});
+
+//#endregion
+
+page.post("/upload/main", mainUpload.single("mainImage"), (req, res) => {
+	console.log("上傳");
+	// res.json("上傳");
+	// 主要文章上傳處理邏輯;
+	if (req.file) {
+		// 如果成功上傳檔案，回傳檔案路徑
+		res.json({ path: req.file.path });
+	} else {
+		// 如果上傳失敗，回傳錯誤訊息
+		res.status(400).json({ error: "上傳失敗" });
+	}
+});
+
+page.post("/upload/content", contentUpload.single("content"), (req, res) => {
+	// 內容上傳處理邏輯
+	if (req.file) {
+		// 如果成功上傳檔案，回傳檔案路徑
+		res.json({ path: req.file.path });
+	} else {
+		// 如果上傳失敗，回傳錯誤訊息
+		res.status(400).json({ error: "上傳失敗" });
+	}
+});
+
+// page.post("/upload_file", myUpload.single("myfile"), function (req, res) {
+// 	console.log(req.file);
+// 	console.log("原始檔名:" + req.file.originalname);
+// 	console.log("檔案類型:" + req.file.mimetype);
+// 	console.log("檔案大小:" + req.file.size);
+// 	console.log("檔案路徑:" + req.file.path);
+// 	res.send("上傳成功");
+// });
 
 // 資料比較測試用
 page.get("/test", express.json(), async (req, res) => {
@@ -604,6 +703,11 @@ page.get("/test", express.json(), async (req, res) => {
 	}
 
 	res.json(diffData);
+});
+
+page.get("/path", express.json(), async (req, res) => {
+	const uploadPath = path.join("../public", "1");
+	res.send(uploadPath);
 });
 
 module.exports = page;
