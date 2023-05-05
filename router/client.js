@@ -10,6 +10,7 @@ let userno;
 var multer = require("multer");
 var mystorage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // console.log(req)
     // console.log(req.route.path);// '/uploadBanner'或'/upload'
     if (req.route.path == "/upload") {
       cb(null, "public/useravatar");
@@ -19,6 +20,7 @@ var mystorage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     //編寫檔案名稱
+    // console.log(req)
     var userFileName = userno + "." + file.originalname.split(".")[1]; //留下自己可辨別的檔案
     cb(null, userFileName);
   },
@@ -44,7 +46,7 @@ let upload = multer({
 page.post("/upload", upload.array("shotUpload", "userno"), function (req, res) {
   // console.log(req.files[0].originalname.split('.')[1]);
   // userno=req.body.userno;
-  // console.log(res);
+  // console.log(req);
   let sql = `UPDATE tb_user SET avatar = ? WHERE userno = ?;`;
   let sqlAll = "SELECT `avatar` FROM `tb_user` WHERE userno=?;";
   connhelper.query(
@@ -112,7 +114,7 @@ page.get("/identity", function (req, res) {
   var sql =
     "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username`,`avatar`,`banner` FROM `tb_user` WHERE userno=?;";
   var sql2 =
-    "SELECT SUBSTRING_INDEX(`id`, '@', 1) AS `username`, `articleno`, `nickname`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` WHERE `tb_main_article`.`articleno` IN (SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = ?) AND `tb_main_article`.`status` = 'show' ORDER BY `tb_main_article`.`articleno` DESC;";
+    "SELECT SUBSTRING_INDEX(`id`, '@', 1) AS `username`, `articleno`, `nickname`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` WHERE `tb_main_article`.`articleno` IN (SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = ? ) AND `tb_main_article`.`status` = 'show';";
 
   connhelper.query(sql + sql2, [req.query.userno, req.query.userno], function (err, result, fields) {
     if (err) {
