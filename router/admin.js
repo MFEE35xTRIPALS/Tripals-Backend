@@ -134,5 +134,24 @@ page.put("/members/update", express.urlencoded(), function (req, res) {
     }
   );
 });
+//---------
+/* 文章管理 */
+//---------
+page.get('/manageArtilcles', function (req, res) {
+  // console.log('kk');
+  // res.send('done')
+  let sql = 'SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `date` DESC;'
+  connhelper.query(
+    sql,
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send("<文章管理-get>MySQL 可能語法寫錯了", err);
+      } else {
+        res.send(results);
+      }
+    }
+  );
+})
 
 module.exports = page;
