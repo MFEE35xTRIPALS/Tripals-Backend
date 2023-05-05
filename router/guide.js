@@ -27,67 +27,6 @@ var multer = require("multer");
 // 	req.session.articleId = articleId;
 // });
 page.use(express.json());
-//#region 圖片上傳
-const mainStorage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		// console.log("Upload test");
-		const mainFolderPath = path.join(
-			"public",
-			"temp",
-			"main"
-			// req.body.mainId.toString()
-		);
-		if (!fs.existsSync(mainFolderPath)) {
-			fs.mkdirSync(mainFolderPath, { recursive: true });
-		}
-		cb(null, mainFolderPath);
-	},
-	filename: function (req, file, cb) {
-		cb(
-			null,
-			"main_" +
-				req.query.main_articleno.toString() +
-				path.extname(file.originalname)
-		);
-	},
-});
-
-const contentStorage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		const contentFolderPath = path.join(
-			"public",
-			"temp",
-			"content",
-			req.body.main_articleno.toString()
-		);
-		if (!fs.existsSync(contentFolderPath)) {
-			fs.mkdirSync(contentFolderPath, { recursive: true });
-		}
-		cb(null, contentFolderPath);
-	},
-	filename: function (req, file, cb) {
-		cb(null, contentno + path.extname(file.originalname));
-	},
-});
-
-// 定義檔案過濾，只允許圖片類型
-const fileFilter = function (req, file, cb) {
-	const filetypes = /jpeg|jpg|png/;
-	const mimetype = filetypes.test(file.mimetype);
-	const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-	if (mimetype && extname) {
-		return cb(null, true);
-	}
-	cb(new Error("只允許上傳圖片類型的檔案"));
-};
-
-const mainUpload = multer({ storage: mainStorage, fileFilter: fileFilter });
-const contentUpload = multer({
-	storage: contentStorage,
-	fileFilter: fileFilter,
-});
-
-//#endregion
 
 // 新增文章和內文的函式
 async function addArticleAndContents(
@@ -232,11 +171,12 @@ page.post("/addold", express.json(), async (req, res) => {
 });
 
 // 點擊 WRITE (編寫文章) 的 API ，會先新增一個佔位資料列
-page.post("/add", express.json(), async (req, res) => {
+page.post("/main", express.json(), async (req, res) => {
 	const userno = req.body.userno;
 
 	const connection = await createConnection();
 	try {
+		await connection.beginTransaction();
 		const insertMainSql = "INSERT INTO tb_main_article (userno) VALUES (?)";
 		// 新增文章到資料表 tb_main_article
 		const [insertArticleResult] = await connection.query(insertMainSql, [
@@ -245,6 +185,15 @@ page.post("/add", express.json(), async (req, res) => {
 
 		// 取得新增的文章 ID
 		const articleNo = insertArticleResult.insertId;
+
+		// 仙新增一筆內容到資料表 tb_content_article
+		await connection.query(
+			"INSERT INTO tb_content_article (articleno) VALUES (?) ",
+			[articleNo]
+		);
+
+		// 提交資料庫交易
+		await connection.commit();
 		// 關閉資料庫連線
 		await connection.end();
 
@@ -252,6 +201,8 @@ page.post("/add", express.json(), async (req, res) => {
 		res.json(articleNo);
 	} catch (error) {
 		console.error(error);
+		// 發生錯誤時回復資料庫狀態
+		await connection.rollback();
 		// 關閉資料庫連線
 		await connection.end();
 		res.status(500).send("新增文章及內容失敗");
@@ -259,12 +210,12 @@ page.post("/add", express.json(), async (req, res) => {
 });
 
 // 內容編輯頁，點擊 新增地點 的 API ，會先新增一個佔位資料列
-page.post("/addspot", express.json(), async (req, res) => {
+page.post("/content", express.json(), async (req, res) => {
 	const articleNo = req.body.main_articleno;
 
 	const connection = await createConnection();
 	try {
-		// 新增文章到資料表 tb_content_article
+		// 新增內容到資料表 tb_content_article
 		const [insertSpotResult] = await connection.query(
 			"INSERT INTO tb_content_article (articleno) VALUES (?) ",
 			[articleNo]
@@ -545,6 +496,67 @@ page.get("", express.json(), async (req, res) => {
 	}
 });
 
+//#region 圖片上傳
+const mainStorage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		// console.log("Upload test");
+		const mainFolderPath = path.join(
+			"public",
+			"guide",
+			"main"
+			// req.body.mainId.toString()
+		);
+		if (!fs.existsSync(mainFolderPath)) {
+			fs.mkdirSync(mainFolderPath, { recursive: true });
+		}
+		cb(null, mainFolderPath);
+	},
+	filename: function (req, file, cb) {
+		cb(
+			null,
+			"main_" +
+				req.body.main_articleno.toString() +
+				path.extname(file.originalname)
+		);
+	},
+});
+
+const contentStorage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		const contentFolderPath = path.join(
+			"public",
+			"guide",
+			"content",
+			req.body.main_articleno.toString()
+		);
+		if (!fs.existsSync(contentFolderPath)) {
+			fs.mkdirSync(contentFolderPath, { recursive: true });
+		}
+		cb(null, contentFolderPath);
+	},
+	filename: function (req, file, cb) {
+		cb(null, req.body.contentno + path.extname(file.originalname));
+	},
+});
+
+// 定義檔案過濾，只允許圖片類型
+const fileFilter = function (req, file, cb) {
+	const filetypes = /jpeg|jpg|png/;
+	const mimetype = filetypes.test(file.mimetype);
+	const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+	if (mimetype && extname) {
+		return cb(null, true);
+	}
+	cb(new Error("只允許上傳圖片類型的檔案"));
+};
+
+const mainUpload = multer({ storage: mainStorage, fileFilter: fileFilter });
+const contentUpload = multer({
+	storage: contentStorage,
+	fileFilter: fileFilter,
+});
+//#endregion
+
 page.post("/upload/main", mainUpload.single("mainImage"), (req, res) => {
 	console.log("上傳");
 	// res.json("上傳");
@@ -559,20 +571,16 @@ page.post("/upload/main", mainUpload.single("mainImage"), (req, res) => {
 	}
 });
 
-page.post(
-	"/upload/content",
-	contentUpload.single("contentImage"),
-	(req, res) => {
-		// 內容上傳處理邏輯
-		if (req.file) {
-			// 如果成功上傳檔案，回傳檔案路徑
-			res.json({ path: req.file.path });
-		} else {
-			// 如果上傳失敗，回傳錯誤訊息
-			res.status(400).json({ error: "上傳失敗" });
-		}
+page.post("/upload/spot", contentUpload.single("contentImage"), (req, res) => {
+	// 內容上傳處理邏輯
+	if (req.file) {
+		// 如果成功上傳檔案，回傳檔案路徑
+		res.json({ path: req.file.path });
+	} else {
+		// 如果上傳失敗，回傳錯誤訊息
+		res.status(400).json({ error: "上傳失敗" });
 	}
-);
+});
 
 // page.post("/upload_file", myUpload.single("myfile"), function (req, res) {
 // 	console.log(req.file);
