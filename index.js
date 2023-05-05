@@ -34,3 +34,5 @@ app.use("/selfpage", selfpage);
 var client = require("./router/guide");
 app.use("/guide", client);
 // test
+var likepost = require("./router/likepost");
+app.use("/likepost", likepost);
