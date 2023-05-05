@@ -113,13 +113,16 @@ page.get("/identity", function (req, res) {
     "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username`,`avatar`,`banner` FROM `tb_user` WHERE userno=?;";
   var sql2 =
     "SELECT SUBSTRING_INDEX(`id`, '@', 1) AS `username`, `articleno`, `nickname`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` WHERE `tb_main_article`.`articleno` IN (SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = ?) AND `tb_main_article`.`status` = 'show' ORDER BY `tb_main_article`.`articleno` DESC;";
+  var sql3 =
+    "SELECT `articleno`, `title`,`view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count`,`tb_main_article`.`status`,tb_main_article.add_date FROM `tb_main_article` WHERE `tb_main_article`.`userno` = ? ORDER BY `tb_main_article`.`add_date` DESC;";
 
-  connhelper.query(sql + sql2, [req.query.userno, req.query.userno], function (err, result, fields) {
+  connhelper.query(sql + sql2 + sql3, [req.query.userno, req.query.userno, req.query.userno], function (err, result, fields) {
     if (err) {
       // console.log(req.body.userno);
       res.send("<個人資料-渲染get>MySQL 可能語法寫錯了", err);
     } else {
-      res.json({ userMessage: result[0], userLikes: result[1] });
+      // console.log(result[2])
+      res.json({ userMessage: result[0], userLikes: result[1], selfarticles: result[2] });
     }
   });
 });
