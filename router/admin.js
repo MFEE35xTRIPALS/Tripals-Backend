@@ -140,7 +140,7 @@ page.put("/members/update", express.urlencoded(), function (req, res) {
 page.get('/manageArtilcles', function (req, res) {
   // console.log('kk');
   // res.send('done')
-  let sql = 'SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `date` DESC;'
+  let sql = 'SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;'
   connhelper.query(
     sql,
     [],
@@ -165,7 +165,7 @@ page.put("/takeOf", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
       } else {
-        res.send(results);
+        res.send(`${req.body.articleno}號文章已被刪除`);
       }
     }
   );
