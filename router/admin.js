@@ -154,4 +154,21 @@ page.get('/manageArtilcles', function (req, res) {
   );
 })
 
+// 文章管理下架＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+// update 文章狀態
+page.put("/takeOf", express.urlencoded(), function (req, res) {
+  var sql = "UPDATE `tb_main_article` SET `status`='report' WHERE `articleno`=?;";
+  connhelper.query(
+    sql,
+    [req.body.articleno],
+    function (err, results, fields) {
+      if (err) {
+        res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
+      } else {
+        res.send(results);
+      }
+    }
+  );
+});
+
 module.exports = page;
