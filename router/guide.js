@@ -155,7 +155,7 @@ async function addHashtagAndNo(connection, hashtag) {
 
 // 點擊 WRITE (編寫文章) 的 API ，會先新增一個佔位資料列
 // 要傳入使用者 userno
-page.post("/main", async (req, res) => {
+page.post("/", async (req, res) => {
 	const userno = req.body.userno;
 
 	const connection = await createConnection();
@@ -182,7 +182,7 @@ page.post("/main", async (req, res) => {
 		await connection.end();
 
 		// 新增佔位文章後回傳此文章的編號
-		res.json(articleNo);
+		res.json({ main_articleno: articleNo });
 	} catch (error) {
 		console.error(error);
 		// 發生錯誤時回復資料庫狀態
@@ -212,7 +212,7 @@ page.post("/content", async (req, res) => {
 		await connection.end();
 
 		// 新增佔位文章後回傳此內容的編號
-		res.json(spotNo);
+		res.json({ contentno: spotNo });
 	} catch (error) {
 		console.error(error);
 		// 關閉資料庫連線
@@ -466,6 +466,7 @@ page.get("/", async (req, res) => {
 			formatResult.spots = formatResult.spots || [];
 
 			formatResult.spots.push({
+				contentno: item.contentno,
 				location_index: item.location_index,
 				title: item.title,
 				content: item.content,
@@ -495,6 +496,27 @@ async function delOldImage(mainPath, imgName) {
 	}
 }
 
+// 刪除整個資料夾
+async function deleteFolder(folderPath) {
+	try {
+		const files = await fs.promises.readdir(folderPath);
+		for (const file of files) {
+			const curPath = path.join(folderPath, file);
+			const stats = await fs.promises.stat(curPath);
+			if (stats.isDirectory()) {
+				await deleteFolder(curPath); // 遞回刪除子資料夾
+			} else {
+				await fs.promises.unlink(curPath); // 删除文件
+			}
+		}
+		await fs.promises.rmdir(folderPath); // 删除當前資料夾
+		console.log(`Folder ${folderPath} deleted successfully`);
+	} catch (error) {
+		console.error(`Error deleting folder ${folderPath}: ${error.message}`);
+		throw error;
+	}
+}
+
 const mainStorage = multer.diskStorage({
 	destination: async function (req, file, cb) {
 		// console.log("Upload test");
@@ -513,7 +535,9 @@ const mainStorage = multer.diskStorage({
 	filename: function (req, file, cb) {
 		cb(
 			null,
-			req.body.main_articleno.toString() + path.extname(file.originalname)
+			"main_" +
+				req.body.main_articleno.toString() +
+				path.extname(file.originalname)
 		);
 	},
 });
@@ -565,7 +589,7 @@ page.post("/upload/main", mainUpload.single("mainImage"), async (req, res) => {
 		const imgPath = req.file.path;
 		const imgName = path.basename(imgPath);
 		const dbPath = path.posix
-			.join("/", "guide", articno, imgName)
+			.join("/", "guide", articleNo, imgName)
 			.replace(/\\/g, "/");
 
 		const connection = await createConnection();
@@ -633,21 +657,40 @@ page.post(
 
 // 刪除內容(地點)
 page.delete("/content", async (req, res) => {
-	// const articleNo = req.body.main_articleno;
+	const articleNo = req.body.main_articleno;
 	const contentNo = req.body.contentno;
+
+	const contentFolderPath = path.join(
+		"public",
+		"guide",
+		articleNo.toString(),
+		"content"
+	);
 
 	const connection = await createConnection();
 	try {
+		// 開始資料庫交易
+		await connection.beginTransaction();
+
 		connection.query("DELETE FROM tb_content_article WHERE contentno = ?", [
 			contentNo,
 		]);
 
+		// 刪除舊檔案
+		await delOldImage(contentFolderPath, contentNo.toString());
+
+		// 提交資料庫交易
+		await connection.commit();
+		// 關閉資料庫連線
 		await connection.end();
 
 		res.status(200).send("刪除成功");
 	} catch (error) {
+		// 發生錯誤時回復資料庫狀態
+		await connection.rollback();
+		// 關閉連線
 		await connection.end();
-		res.status(500).send("刪除失敗" + error.message);
+		res.status(500).send("刪除失敗，" + error.message);
 	}
 });
 
@@ -656,18 +699,32 @@ page.delete("/", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	// const contentNo = req.body.contentno;
 
+	const mainFolderPath = path.join("public", "guide", articleNo.toString());
+
 	const connection = await createConnection();
 	try {
+		// 開始資料庫交易
+		await connection.beginTransaction();
+
 		connection.query("DELETE FROM tb_main_article WHERE articleno = ?", [
 			articleNo,
 		]);
 
+		// 刪除整個資料夾
+		await deleteFolder(mainFolderPath);
+
+		// 提交資料庫交易
+		await connection.commit();
+		// 關閉資料庫連線
 		await connection.end();
 
 		res.status(200).send("刪除成功");
 	} catch (error) {
+		// 發生錯誤時回復資料庫狀態
+		await connection.rollback();
+		// 關閉連線
 		await connection.end();
-		res.status(500).send("刪除失敗" + error.message);
+		res.status(500).send("刪除失敗，" + error.message);
 	}
 });
 

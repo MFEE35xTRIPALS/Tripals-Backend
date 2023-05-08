@@ -11,10 +11,17 @@
 			"description": "Local server"
 		}
 	],
+	"tags": [
+		{
+			"name": "Guide",
+			"description": "文章CRUD"
+		}
+	],
 	"paths": {
 		"/guide/": {
 			"get": {
-				"summary": "回傳導覽頁面資訊.",
+				"tags": ["Guide"],
+				"summary": "瀏覽文章.",
 				"description": "回傳導覽頁面資訊.",
 				"parameters": [
 					{
@@ -22,7 +29,7 @@
 						"in": "query",
 						"description": "當下的使用者編號",
 						"required": true,
-						"type": "string"
+						"type": "integer"
 					},
 					{
 						"name": "articleno",
@@ -34,11 +41,11 @@
 				],
 				"responses": {
 					"200": {
-						"description": "A JSON object of user",
+						"description": "獲取 Guide 文章資料.",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/User"
+									"$ref": "#/components/schemas/Guide"
 								}
 							}
 						}
@@ -46,60 +53,257 @@
 				}
 			},
 			"patch": {
-				"summary": "Update the specific user.",
-				"description": "Update the specific user.",
-				"parameters": [
-					{
-						"name": "id",
-						"in": "path",
-						"description": "user id which wants to update",
-						"required": true,
-						"type": "string"
-					}
-				],
+				"tags": ["Guide"],
+				"summary": "更新文章.",
+				"description": "更新文章按鈕(發布草稿、發布)做的事.",
 				"requestBody": {
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UserInput"
+								"$ref": "#/components/schemas/editGuide"
 							}
 						}
 					}
 				},
 				"responses": {
-					"204": {
-						"description": "Success update user.",
+					"201": {
+						"description": "更新成功.",
 						"content": {
 							"text/plain": {
 								"schema": {
 									"type": "string"
-								}
+								},
+								"example": "更新成功"
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["Guide"],
+				"summary": "新增文章.",
+				"description": "按下 WRITE 後會做的API，需先傳入會員ID，會先新增一個狀態為 draft 的空文章.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/user/properties/userno"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "新增文章成功.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/article/properties/main_articleno"
+								},
+								"example": { "main_articleno": 2 }
 							}
 						}
 					}
 				}
 			},
 			"delete": {
-				"summary": "Delete the specific user.",
-				"description": "Delete the specific user.",
-				"parameters": [
-					{
-						"name": "id",
-						"in": "path",
-						"description": "user id which wants to delete",
-						"required": true,
-						"type": "string"
+				"tags": ["Guide"],
+				"summary": "刪除文章.",
+				"description": "刪除整篇文章，連同圖片及景點也刪除.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/editGuide/properties/main_articleno"
+							},
+							"example": { "main_articleno": 2 }
+						}
 					}
-				],
+				},
 				"responses": {
-					"204": {
-						"description": "Success delete user.",
+					"200": {
+						"description": "刪除成功.",
 						"content": {
 							"text/plain": {
 								"schema": {
 									"type": "string"
+								},
+								"example": "刪除成功"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/guide/{main_articleno}": {
+			"get": {
+				"tags": ["Guide"],
+				"summary": "取得要編輯文章的資料.",
+				"description": "按下 編輯文章 後會做的API，會先取得原有的文章資料.",
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/get_main_articleno"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "成功取得原有文章資料.",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/getEditGuide" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/guide/content": {
+			"post": {
+				"tags": ["Guide"],
+				"summary": "新增地點.",
+				"description": "按下 新增景點 後會做的API，需先傳入主要文章ID，會新增空地點.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/editGuide/properties/main_articleno"
+							},
+							"example": { "main_articleno": 2 }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "新增地點成功.",
+						"content": {
+							"application/json": {
+								"$ref": "#/components/schemas/article/properties/contentno"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Guide"],
+				"summary": "刪除地點.",
+				"description": "按下 x 後會做的API，需先傳入主要文章ID及要刪除的地點ID.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"main_articleno": {
+										"$ref": "#/components/schemas/article/properties/main_articleno"
+									},
+									"contentno": {
+										"$ref": "#/components/schemas/article/properties/main_articleno"
+									}
 								}
+							},
+							"example": { "main_articleno": 2, "contentno": 11 }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "刪除成功.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								},
+								"example": "刪除成功"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/guide/upload/main": {
+			"post": {
+				"tags": ["Guide"],
+				"summary": "上傳主要文章圖片.",
+				"description": "上傳主要文章圖片，需帶入主要文章編號.",
+				"operationId": "uploadMainImage",
+				"consumes": ["multipart/form-data"],
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "mainImage",
+						"type": "file",
+						"description": "主要文章圖片",
+						"required": true,
+						"format": "binary",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"main_articleno": {
+									"type": "integer"
+								}
+							},
+							"example": { "main_articleno": 2 }
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "上傳成功.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								},
+								"example": "上傳成功"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/guide/upload/content": {
+			"post": {
+				"tags": ["Guide"],
+				"summary": "上傳地點圖片.",
+				"description": "上傳地點圖片，需帶入地點編號.",
+				"operationId": "uploadMainImage",
+				"consumes": ["multipart/form-data"],
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "mainImage",
+						"type": "file",
+						"description": "主要文章圖片",
+						"required": true,
+						"format": "binary",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"main_articleno": {
+									"type": "integer"
+								},
+								"contentno": {
+									"type": "integer"
+								}
+							},
+							"example": { "main_articleno": 2, "contentno": 11 }
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "上傳成功.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								},
+								"example": "上傳成功"
 							}
 						}
 					}
@@ -108,24 +312,201 @@
 		}
 	},
 	"components": {
+		"parameters": {
+			"get_main_articleno": {
+				"name": "main_articleno",
+				"in": "path",
+				"description": "主要文章流水號",
+				"required": true,
+				"schema": {
+					"type": "integer"
+				},
+				"example": 2
+			}
+		},
 		"schemas": {
-			"User": {
+			"user": {
 				"properties": {
-					"id": {
+					"userno": {
 						"type": "integer",
 						"format": "int64",
-						"example": 1
-					},
-					"username": {
-						"type": "string",
-						"example": "Jimmy"
-					},
-					"email": {
-						"type": "string",
-						"example": "test@test.com"
+						"example": { "userno": 2 }
 					}
-				},
-				"required": ["id", "username", "email"]
+				}
+			},
+			"article": {
+				"properties": {
+					"main_articleno": {
+						"type": "integer",
+						"format": "int64",
+						"example": { "main_articleno": 2 }
+					},
+					"contentno": {
+						"type": "integer",
+						"format": "int64",
+						"example": { "contentno": 30 }
+					}
+				}
+			},
+			"Guide": {
+				"properties": {
+					"id": {
+						"type": "string",
+						"format": "email",
+						"example": "pink_panda@gmail.com"
+					},
+					"nickname": {
+						"type": "string",
+						"example": "小熊迷你裙"
+					},
+					"avatar": {
+						"type": "string",
+						"example": "/useravatar/2.png"
+					},
+					"main_title": {
+						"type": "string",
+						"example": "基隆一日遊"
+					},
+					"main_content": {
+						"type": "string",
+						"example": "沿著海岸線享受漁港美食及風景"
+					},
+					"main_location": {
+						"type": "string",
+						"example": "基隆市"
+					},
+					"main_image": {
+						"type": "string",
+						"example": "./guide/2/main_2.jpg"
+					},
+					"main_view_count": {
+						"type": "integer",
+						"format": "int64",
+						"example": 666
+					},
+					"main_liked_count": {
+						"type": "integer",
+						"format": "int64",
+						"example": 66
+					},
+					"liked": {
+						"type": "boolean",
+						"example": true
+					},
+					"hashtags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"example": ["在地美食", "基隆", "文化探索", "深度旅遊", "老街"]
+					},
+					"spots": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"contentno": {
+									"type": "integer",
+									"format": "int64"
+								},
+								"location_index": {
+									"type": "integer",
+									"format": "int64"
+								},
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								},
+								"location": {
+									"type": "string"
+								},
+								"image": {
+									"type": "string"
+								}
+							},
+							"example": [
+								{
+									"contentno": 6,
+									"location_index": 1,
+									"title": "望幽谷",
+									"content": "望幽谷是一個V字型的山谷，可在綠油油的草地放鬆也可看到八斗子漁港來往的漁船。",
+									"location": "25.1457121,121.7954435",
+									"image": "/guide/2/content/6.jpg"
+								},
+								{
+									"contentno": 7,
+									"location_index": 2,
+									"title": "基隆市廟口小吃",
+									"content": "廟口小吃是基隆夜市的代表，廟口是指鄰近基隆港的重要商業區域。",
+									"location": "25.132734,121.74698",
+									"image": "/guide/2/content/7.jpg"
+								},
+								{
+									"contentno": 8,
+									"location_index": 3,
+									"title": "和平島海邊測試",
+									"content": "廟口小吃是基隆夜市的代表，廟口是指鄰近基隆港的重要商業區域。",
+									"location": "25.141735,121.757748",
+									"image": "/guide/2/content/8.jpg"
+								}
+							]
+						}
+					}
+				}
+			},
+			"editGuide": {
+				"properties": {
+					"main_articleno": {
+						"type": "integer",
+						"example": "6"
+					},
+					"main_title": {
+						"$ref": "#/components/schemas/Guide/properties/main_title"
+					},
+					"main_content": {
+						"$ref": "#/components/schemas/Guide/properties/main_content"
+					},
+					"main_location": {
+						"$ref": "#/components/schemas/Guide/properties/main_location"
+					},
+					"hashtags": {
+						"$ref": "#/components/schemas/Guide/properties/hashtags"
+					},
+					"status": {
+						"type": "string",
+						"example": "show"
+					},
+					"spots": {
+						"$ref": "#/components/schemas/Guide/properties/spots"
+					}
+				}
+			},
+			"getEditGuide": {
+				"properties": {
+					"main_articleno": {
+						"$ref": "#/components/schemas/editGuide/properties/main_articleno"
+					},
+					"main_title": {
+						"$ref": "#/components/schemas/editGuide/properties/main_title"
+					},
+					"main_content": {
+						"$ref": "#/components/schemas/editGuide/properties/main_content"
+					},
+					"main_location": {
+						"$ref": "#/components/schemas/editGuide/properties/main_location"
+					},
+					"main_image": {
+						"$ref": "#/components/schemas/editGuide/properties/main_image"
+					},
+					"hashtags": {
+						"$ref": "#/components/schemas/editGuide/properties/hashtags"
+					},
+					"spots": {
+						"$ref": "#/components/schemas/editGuide/properties/spots"
+					}
+				}
 			},
 			"UserInput": {
 				"properties": {
