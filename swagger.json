@@ -1,0 +1,145 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Tripals API",
+		"description": "Tripals API Docs",
+		"version": "0.0.1"
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000/",
+			"description": "Local server"
+		}
+	],
+	"paths": {
+		"/guide/": {
+			"get": {
+				"summary": "回傳導覽頁面資訊.",
+				"description": "回傳導覽頁面資訊.",
+				"parameters": [
+					{
+						"name": "userno",
+						"in": "query",
+						"description": "當下的使用者編號",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "articleno",
+						"in": "query",
+						"description": "要查看的文章編號",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A JSON object of user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"summary": "Update the specific user.",
+				"description": "Update the specific user.",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "user id which wants to update",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserInput"
+							}
+						}
+					}
+				},
+				"responses": {
+					"204": {
+						"description": "Success update user.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"summary": "Delete the specific user.",
+				"description": "Delete the specific user.",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "user id which wants to delete",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "Success delete user.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"User": {
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int64",
+						"example": 1
+					},
+					"username": {
+						"type": "string",
+						"example": "Jimmy"
+					},
+					"email": {
+						"type": "string",
+						"example": "test@test.com"
+					}
+				},
+				"required": ["id", "username", "email"]
+			},
+			"UserInput": {
+				"properties": {
+					"username": {
+						"type": "string",
+						"example": "Jimmy"
+					},
+					"email": {
+						"type": "string",
+						"example": "test@test.com"
+					}
+				},
+				"required": ["username", "email"]
+			}
+		}
+	}
+}

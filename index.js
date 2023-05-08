@@ -4,7 +4,7 @@
 var express = require("express");
 var app = express();
 app.listen(3000, function (req, res) {
-  console.log("Tripals: 啟動中");
+	console.log("Tripals: 啟動中");
 });
 
 // -----------------------------------
@@ -18,9 +18,13 @@ app.use(cors());
 app.use(express.static("./public"));
 
 app.get("/", function (req, res) {
-  res.send("okk");
+	res.send("okk");
 });
 
+// --------- swagger ---------
+const swagger = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+app.use("/docs", swagger.serve, swagger.setup(swaggerDocument));
 // --------- 引用各分頁的CRUD -----------
 /* 管理員後台 */
 var admin = require("./router/admin"); // 引用，相對路徑

@@ -224,7 +224,7 @@ page.post("/content", async (req, res) => {
 // 修改文章
 // 先取得文章資料
 // 要給文章編號 articleNo 先用網址參數就好了
-page.get("/edit/:id", async (req, res) => {
+page.get("/:id", async (req, res) => {
 	const articleNo = parseInt(req.params.id);
 	console.log(articleNo);
 
@@ -279,7 +279,7 @@ page.get("/edit/:id", async (req, res) => {
 
 // 更新文章
 // 要給文章編號 articleNo 及各項要更改的資訊 文章狀態由前端傳入並更改
-page.patch("/edit/", async (req, res) => {
+page.patch("/", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	const title = req.body.main_title;
 	const content = req.body.main_content;
@@ -631,7 +631,7 @@ page.post(
 	}
 );
 
-// 刪除內容
+// 刪除內容(地點)
 page.delete("/content", async (req, res) => {
 	// const articleNo = req.body.main_articleno;
 	const contentNo = req.body.contentno;
@@ -652,7 +652,7 @@ page.delete("/content", async (req, res) => {
 });
 
 // 刪除整篇文章
-page.delete("/article", async (req, res) => {
+page.delete("/", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	// const contentNo = req.body.contentno;
 

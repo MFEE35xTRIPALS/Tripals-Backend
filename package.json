@@ -25,6 +25,8 @@
 		"mysql2": "^3.2.4",
 		"path": "^0.12.7",
 		"session": "^0.1.0",
+		"swagger-autogen": "^2.23.1",
+		"swagger-ui-express": "^4.6.3",
 		"uuid": "^9.0.0"
 	}
 }
