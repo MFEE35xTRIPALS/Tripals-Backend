@@ -1,6 +1,5 @@
 var path = require("path");
 var fs = require("fs");
-// var { v4: uuidv4 } = require("uuid");
 var express = require("express");
 // var session = require("express-session");
 var page = express.Router();
@@ -10,108 +9,92 @@ var page = express.Router();
 var { createConnection } = require("./mysql2_config");
 // -----------------------------------
 var multer = require("multer");
-// const { send } = require("process");
-// -----------------------------------
-// app.use(
-// 	session({
-// 		secret: "mySecretPassword",
-// 		resave: false,
-// 		saveUninitialized: true,
-// 	})
-// );
-// -----------------------------------
-//#region 新增文章、內文
-// const uuid = require("uuid");
-// app.post("/add_session", (req, res) => {
-// 	const articleId = uuid.v4();
-// 	req.session.articleId = articleId;
-// });
+const { error } = require("console");
 page.use(express.json());
 
 // 新增文章和內文的函式
-async function addArticleAndContents(
-	userno,
-	title,
-	content,
-	location,
-	image,
-	hashtags,
-	status,
-	spots
-) {
-	const connection = await createConnection();
+// async function addArticleAndContents(
+// 	userno,
+// 	title,
+// 	content,
+// 	location,
+// 	image,
+// 	hashtags,
+// 	status,
+// 	spots
+// ) {
+// 	const connection = await createConnection();
 
-	try {
-		// 開始資料庫交易
-		await connection.beginTransaction();
-		const insertMainSql =
-			"INSERT INTO tb_main_article ( userno, title, content, location, image, status) VALUES ( ?, ?, ?, ?, ?, ?)";
-		// 新增文章到資料表 tb_main_article
-		const [insertArticleResult] = await connection.query(insertMainSql, [
-			userno,
-			title,
-			content,
-			location,
-			image,
-			status,
-		]);
+// 	try {
+// 		// 開始資料庫交易
+// 		await connection.beginTransaction();
+// 		const insertMainSql =
+// 			"INSERT INTO tb_main_article ( userno, title, content, location, image, status) VALUES ( ?, ?, ?, ?, ?, ?)";
+// 		// 新增文章到資料表 tb_main_article
+// 		const [insertArticleResult] = await connection.query(insertMainSql, [
+// 			userno,
+// 			title,
+// 			content,
+// 			location,
+// 			image,
+// 			status,
+// 		]);
 
-		// 取得新增的文章 ID
-		const articleNo = insertArticleResult.insertId;
+// 		// 取得新增的文章 ID
+// 		const articleNo = insertArticleResult.insertId;
 
-		// hashtag新增處理
-		// console.log(hashtags);
-		await Promise.all(
-			hashtags.map(async (hashtag) => {
-				// console.log(hashtag);
+// 		// hashtag新增處理
+// 		// console.log(hashtags);
+// 		await Promise.all(
+// 			hashtags.map(async (hashtag) => {
+// 				// console.log(hashtag);
 
-				let hashtagNo = await addHashtagAndNo(connection, hashtag);
+// 				let hashtagNo = await addHashtagAndNo(connection, hashtag);
 
-				// 新增 tb_article_hashtag 關聯紀錄表
-				const insertArticleHashtag =
-					"INSERT INTO tb_article_hashtag (articleno, hashtagno) VALUES (?, ?);";
+// 				// 新增 tb_article_hashtag 關聯紀錄表
+// 				const insertArticleHashtag =
+// 					"INSERT INTO tb_article_hashtag (articleno, hashtagno) VALUES (?, ?);";
 
-				await connection.query(insertArticleHashtag, [articleNo, hashtagNo]);
-			})
-		);
+// 				await connection.query(insertArticleHashtag, [articleNo, hashtagNo]);
+// 			})
+// 		);
 
-		// 逐一新增內容到資料表 tb_content_article
-		await Promise.all(
-			spots.map(async (spot) => {
-				const insertContentSql =
-					"INSERT INTO tb_content_article (articleno, location_index, title, content, location, image, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-				await connection.query(insertContentSql, [
-					articleNo,
-					spot.location_index,
-					spot.title,
-					spot.content,
-					spot.location,
-					spot.image,
-					spot.status,
-				]);
-			})
-		);
+// 		// 逐一新增內容到資料表 tb_content_article
+// 		await Promise.all(
+// 			spots.map(async (spot) => {
+// 				const insertContentSql =
+// 					"INSERT INTO tb_content_article (articleno, location_index, title, content, location, image, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+// 				await connection.query(insertContentSql, [
+// 					articleNo,
+// 					spot.location_index,
+// 					spot.title,
+// 					spot.content,
+// 					spot.location,
+// 					spot.image,
+// 					spot.status,
+// 				]);
+// 			})
+// 		);
 
-		// 提交資料庫交易
-		await connection.commit();
-		// 關閉資料庫連線
-		await connection.end();
+// 		// 提交資料庫交易
+// 		await connection.commit();
+// 		// 關閉資料庫連線
+// 		await connection.end();
 
-		console.log("新增文章及內容成功");
-	} catch (error) {
-		// 發生錯誤時回復資料庫狀態
-		await connection.rollback();
-		// 關閉資料庫連線
-		await connection.end();
+// 		console.log("新增文章及內容成功");
+// 	} catch (error) {
+// 		// 發生錯誤時回復資料庫狀態
+// 		await connection.rollback();
+// 		// 關閉資料庫連線
+// 		await connection.end();
 
-		console.error("新增文章及內容失敗");
-		// 拋出錯誤讓外層的 catch也能捕獲
-		// throw new Error("新增文章及內容失敗");
-		throw error;
-		// console.error(error);
-	}
-}
-//#endregion
+// 		console.error("新增文章及內容失敗");
+// 		// 拋出錯誤讓外層的 catch也能捕獲
+// 		// throw new Error("新增文章及內容失敗");
+// 		throw error;
+// 		// console.error(error);
+// 	}
+// }
 
 async function addHashtagAndNo(connection, hashtag) {
 	// console.log(hashtag);
@@ -141,37 +124,38 @@ async function addHashtagAndNo(connection, hashtag) {
 }
 
 // 新增文章和內容的 API
-page.post("/addold", express.json(), async (req, res) => {
-	const userno = req.body.userno;
-	const title = req.body.main_title;
-	const content = req.body.main_content;
-	const location = req.body.main_location;
-	const image = req.body.main_image;
-	const hashtags = req.body.hashtags;
-	const status = req.body.status;
-	const spots = req.body.spots;
+// page.post("/addold", express.json(), async (req, res) => {
+// 	const userno = req.body.userno;
+// 	const title = req.body.main_title;
+// 	const content = req.body.main_content;
+// 	const location = req.body.main_location;
+// 	const image = req.body.main_image;
+// 	const hashtags = req.body.hashtags;
+// 	const status = req.body.status;
+// 	const spots = req.body.spots;
 
-	try {
-		await addArticleAndContents(
-			userno,
-			title,
-			content,
-			location,
-			image,
-			hashtags,
-			status,
-			spots
-		);
+// 	try {
+// 		await addArticleAndContents(
+// 			userno,
+// 			title,
+// 			content,
+// 			location,
+// 			image,
+// 			hashtags,
+// 			status,
+// 			spots
+// 		);
 
-		res.status(201).send("新增文章及內容成功");
-	} catch (error) {
-		console.error(error);
-		res.status(500).send("新增文章及內容失敗");
-	}
-});
+// 		res.status(201).send("新增文章及內容成功");
+// 	} catch (error) {
+// 		console.error(error);
+// 		res.status(500).send("新增文章及內容失敗");
+// 	}
+// });
 
 // 點擊 WRITE (編寫文章) 的 API ，會先新增一個佔位資料列
-page.post("/main", express.json(), async (req, res) => {
+// 要傳入使用者 userno
+page.post("/main", async (req, res) => {
 	const userno = req.body.userno;
 
 	const connection = await createConnection();
@@ -210,7 +194,8 @@ page.post("/main", express.json(), async (req, res) => {
 });
 
 // 內容編輯頁，點擊 新增地點 的 API ，會先新增一個佔位資料列
-page.post("/content", express.json(), async (req, res) => {
+// 要傳入 文章編號 articleNo
+page.post("/content", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 
 	const connection = await createConnection();
@@ -238,7 +223,8 @@ page.post("/content", express.json(), async (req, res) => {
 
 // 修改文章
 // 先取得文章資料
-page.get("/edit/:id", express.json(), async (req, res) => {
+// 要給文章編號 articleNo 先用網址參數就好了
+page.get("/edit/:id", async (req, res) => {
 	const articleNo = parseInt(req.params.id);
 	console.log(articleNo);
 
@@ -292,13 +278,13 @@ page.get("/edit/:id", express.json(), async (req, res) => {
 });
 
 // 更新文章
-// 要先知道取得文章的id
-page.patch("/edit/:id", express.json(), async (req, res) => {
+// 要給文章編號 articleNo 及各項要更改的資訊 文章狀態由前端傳入並更改
+page.patch("/edit/", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	const title = req.body.main_title;
 	const content = req.body.main_content;
 	const location = req.body.main_location;
-	const image = req.body.main_image;
+	// const image = req.body.main_image;
 	const hashtags = req.body.hashtags;
 	const status = req.body.status;
 	const spots = req.body.spots;
@@ -332,11 +318,11 @@ page.patch("/edit/:id", express.json(), async (req, res) => {
 			setClause += "tb_main_article.location = ?, ";
 			params.push(location);
 		}
-		if (image) {
-			console.log("我有更改image");
-			setClause += "tb_main_article.image = ?, ";
-			params.push(image);
-		}
+		// if (image) {
+		// 	console.log("我有更改image");
+		// 	setClause += "tb_main_article.image = ?, ";
+		// 	params.push(image);
+		// }
 
 		if (status) {
 			console.log("我有更改status");
@@ -399,10 +385,10 @@ page.patch("/edit/:id", express.json(), async (req, res) => {
 					setClause += "tb_content_article.location = ?, ";
 					params.push(spot.location);
 				}
-				if (spot.image) {
-					setClause += "tb_content_article.image = ?, ";
-					params.push(spot.image);
-				}
+				// if (spot.image) {
+				// 	setClause += "tb_content_article.image = ?, ";
+				// 	params.push(spot.image);
+				// }
 
 				// params長度 >0 再修改
 				if (params.length > 0) {
@@ -434,14 +420,13 @@ page.patch("/edit/:id", express.json(), async (req, res) => {
 });
 
 // 瀏覽文章
-page.get("", express.json(), async (req, res) => {
+// 要給 userno & articleno 判斷現在在瀏覽哪個文章&當前使用者在看的文章有沒有按讚
+page.get("/", async (req, res) => {
 	const userNo = parseInt(req.query.userno);
 	const articleNo = parseInt(req.query.articleno);
 	// console.log(articleNo);
-
+	const connection = await createConnection();
 	try {
-		const connection = await createConnection();
-
 		// 查詢喜歡過的文章
 		const sql =
 			"SELECT *,(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked FROM view_guide WHERE main_articleno = ? ORDER BY location_index;";
@@ -497,41 +482,55 @@ page.get("", express.json(), async (req, res) => {
 });
 
 //#region 圖片上傳
+// 刪除舊檔案，這裡要用非同步方法才可避免先新增完檔案了才刪除
+async function delOldImage(mainPath, imgName) {
+	const files = await fs.promises.readdir(mainPath);
+
+	for (const file of files) {
+		if (file.startsWith(imgName + ".")) {
+			const fullPath = path.join(mainPath, file);
+			await fs.promises.unlink(fullPath);
+			console.log(`Deleted ${fullPath}`);
+		}
+	}
+}
+
 const mainStorage = multer.diskStorage({
-	destination: function (req, file, cb) {
+	destination: async function (req, file, cb) {
 		// console.log("Upload test");
 		const mainFolderPath = path.join(
 			"public",
 			"guide",
-			"main"
-			// req.body.mainId.toString()
+			req.body.main_articleno.toString()
 		);
 		if (!fs.existsSync(mainFolderPath)) {
 			fs.mkdirSync(mainFolderPath, { recursive: true });
 		}
+		// 刪除舊檔案
+		await delOldImage(mainFolderPath, req.body.main_articleno.toString());
 		cb(null, mainFolderPath);
 	},
 	filename: function (req, file, cb) {
 		cb(
 			null,
-			"main_" +
-				req.body.main_articleno.toString() +
-				path.extname(file.originalname)
+			req.body.main_articleno.toString() + path.extname(file.originalname)
 		);
 	},
 });
 
 const contentStorage = multer.diskStorage({
-	destination: function (req, file, cb) {
+	destination: async function (req, file, cb) {
 		const contentFolderPath = path.join(
 			"public",
 			"guide",
-			"content",
-			req.body.main_articleno.toString()
+			req.body.main_articleno.toString(),
+			"content"
 		);
 		if (!fs.existsSync(contentFolderPath)) {
 			fs.mkdirSync(contentFolderPath, { recursive: true });
 		}
+		// 刪除舊檔案
+		await delOldImage(contentFolderPath, req.body.contentno.toString());
 		cb(null, contentFolderPath);
 	},
 	filename: function (req, file, cb) {
@@ -557,28 +556,118 @@ const contentUpload = multer({
 });
 //#endregion
 
-page.post("/upload/main", mainUpload.single("mainImage"), (req, res) => {
-	console.log("上傳");
-	// res.json("上傳");
+// 主要文章圖片上傳
+// 要給 主要文章編號 main_articleno
+page.post("/upload/main", mainUpload.single("mainImage"), async (req, res) => {
 	// 主要文章上傳處理邏輯;
 	if (req.file) {
-		// 如果成功上傳檔案，回傳檔案路徑
-		// res.json({ path: req.file.path });
-		res.send("成功");
+		const articleNo = req.body.main_articleno;
+		const imgPath = req.file.path;
+		const imgName = path.basename(imgPath);
+		const dbPath = path.posix
+			.join("/", "guide", articno, imgName)
+			.replace(/\\/g, "/");
+
+		const connection = await createConnection();
+		try {
+			await connection.query(
+				"UPDATE tb_main_article SET image = ? WHERE articleno = ?",
+				[dbPath, articleNo]
+			);
+
+			// 關閉連線
+			await connection.end();
+
+			// 如果成功上傳檔案，回傳檔案路徑
+			res.json({ path: dbPath });
+		} catch (error) {
+			console.log(error);
+			// 關閉連線
+			await connection.end();
+		}
 	} else {
 		// 如果上傳失敗，回傳錯誤訊息
-		res.status(400).json({ error: "上傳失敗" });
+		res.status(400).send("上傳失敗" + error.message);
 	}
 });
 
-page.post("/upload/spot", contentUpload.single("contentImage"), (req, res) => {
-	// 內容上傳處理邏輯
-	if (req.file) {
-		// 如果成功上傳檔案，回傳檔案路徑
-		res.json({ path: req.file.path });
-	} else {
-		// 如果上傳失敗，回傳錯誤訊息
-		res.status(400).json({ error: "上傳失敗" });
+// 文章內容圖片上傳
+// 要給主要文章編號 main_articleno & 文章內容編號 contentno
+page.post(
+	"/upload/content",
+	contentUpload.single("contentImage"),
+	async (req, res) => {
+		// 內容上傳處理邏輯
+		if (req.file) {
+			const articleNo = req.body.main_articleno;
+			const contentNo = req.body.contentno;
+			const imgPath = req.file.path;
+			const imgName = path.basename(imgPath);
+			const dbPath = path.posix
+				.join("/", "guide", articleNo, "content", imgName)
+				.replace(/\\/g, "/");
+
+			const connection = await createConnection();
+			try {
+				await connection.query(
+					"UPDATE tb_content_article SET image = ? WHERE contentno = ?",
+					[dbPath, contentNo]
+				);
+
+				// 關閉連線
+				await connection.end();
+
+				// 如果成功上傳檔案，回傳檔案路徑
+				res.json({ path: dbPath });
+			} catch (error) {
+				console.log(error);
+				// 關閉連線
+				await connection.end();
+			}
+		} else {
+			// 如果上傳失敗，回傳錯誤訊息
+			res.status(400).send("上傳失敗" + error.message);
+		}
+	}
+);
+
+// 刪除內容
+page.delete("/content", async (req, res) => {
+	// const articleNo = req.body.main_articleno;
+	const contentNo = req.body.contentno;
+
+	const connection = await createConnection();
+	try {
+		connection.query("DELETE FROM tb_content_article WHERE contentno = ?", [
+			contentNo,
+		]);
+
+		await connection.end();
+
+		res.status(200).send("刪除成功");
+	} catch (error) {
+		await connection.end();
+		res.status(500).send("刪除失敗" + error.message);
+	}
+});
+
+// 刪除整篇文章
+page.delete("/article", async (req, res) => {
+	const articleNo = req.body.main_articleno;
+	// const contentNo = req.body.contentno;
+
+	const connection = await createConnection();
+	try {
+		connection.query("DELETE FROM tb_main_article WHERE articleno = ?", [
+			articleNo,
+		]);
+
+		await connection.end();
+
+		res.status(200).send("刪除成功");
+	} catch (error) {
+		await connection.end();
+		res.status(500).send("刪除失敗" + error.message);
 	}
 });
 
@@ -592,7 +681,7 @@ page.post("/upload/spot", contentUpload.single("contentImage"), (req, res) => {
 // });
 
 // 資料比較測試用
-page.get("/test", express.json(), async (req, res) => {
+page.get("/test", async (req, res) => {
 	let originalData = {
 		main_articleno: 2,
 		main_title: "基隆一日遊 測試",
@@ -770,11 +859,6 @@ page.get("/test", express.json(), async (req, res) => {
 	}
 
 	res.json(diffData);
-});
-
-page.get("/path", express.json(), async (req, res) => {
-	const uploadPath = path.join("../public", "1");
-	res.send(uploadPath);
 });
 
 module.exports = page;
