@@ -400,6 +400,8 @@ page.get("", express.json(), async (req, res) => {
 
 		const formatResult = {};
 		contentResult.forEach((item) => {
+			formatResult.userno = userNo;
+			formatResult.articleno = articleNo;
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
 			formatResult.avatar = item.avatar;

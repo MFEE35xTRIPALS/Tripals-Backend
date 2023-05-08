@@ -28,7 +28,7 @@ VALUES (?, ?);
             return res.status(500).send("資料庫發生錯誤,原因：" + err.message);
         }
         //
-        res.json("完成收藏更新:" + results);
+        res.json(results);
     });
     // res.send("postOKK");
 
@@ -56,7 +56,32 @@ page.post("/unlike", function (req, res) {
             return res.status(500).send("資料庫發生錯誤,原因：" + err.message);
         }
         //
-        res.json("完成取消收藏更新:" + results);
+        res.json(results);
+    });
+    // res.send("postOKK");
+
+}
+
+);
+
+//檢舉文章
+page.post("/report", function (req, res) {
+    console.log(req.query);
+    articleno = parseInt(req.query.articleno);
+
+    //report+1
+    const sql = `
+    UPDATE tb_main_article SET report_count = report_count + 1 WHERE articleno = ? ;
+    
+`;
+
+    connhelper.query(sql, [articleno], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("資料庫發生錯誤,原因：" + err.message);
+        }
+        //
+        res.json(results);
     });
     // res.send("postOKK");
 
