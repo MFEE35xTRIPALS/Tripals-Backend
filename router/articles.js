@@ -82,7 +82,7 @@ page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("<hashtag-選取之後POST> MySQL 可能語法寫錯了", err);
       } else {
-        console.log(result);
+        // console.log(result);
         res.json(result);
       }
     }
@@ -104,6 +104,7 @@ page.post("/city", express.urlencoded(), function (req, res) {
       if (err) {
         res.send("<city-選取之後POST> MySQL 可能語法寫錯了", err);
       } else {
+        console.log(result);
         res.json(result);
       }
     }
