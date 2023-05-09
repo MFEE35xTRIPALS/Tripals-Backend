@@ -230,27 +230,29 @@
 				"tags": ["Guide"],
 				"summary": "上傳主要文章圖片.",
 				"description": "上傳主要文章圖片，需帶入主要文章編號.",
-				"operationId": "uploadMainImage",
-				"consumes": ["multipart/form-data"],
-				"parameters": [
-					{
-						"in": "formData",
-						"name": "mainImage",
-						"type": "file",
-						"description": "主要文章圖片",
-						"required": true,
-						"format": "binary",
-						"schema": {
-							"type": "object",
-							"properties": {
-								"main_articleno": {
-									"type": "integer"
-								}
-							},
-							"example": { "main_articleno": 2 }
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"main_articleno": {
+										"type": "integer",
+										"description": "要上傳的主要文章編號",
+										"example": 2
+									},
+									"mainImage": {
+										"type": "string",
+										"format": "binary",
+										"description": "要上傳的主要文章圖片"
+									}
+								},
+								"required": ["main_articleno", "mainImage"]
+							}
 						}
 					}
-				],
+				},
 				"responses": {
 					"200": {
 						"description": "上傳成功.",
@@ -270,31 +272,35 @@
 			"post": {
 				"tags": ["Guide"],
 				"summary": "上傳地點圖片.",
-				"description": "上傳地點圖片，需帶入地點編號.",
-				"operationId": "uploadMainImage",
-				"consumes": ["multipart/form-data"],
-				"parameters": [
-					{
-						"in": "formData",
-						"name": "mainImage",
-						"type": "file",
-						"description": "主要文章圖片",
-						"required": true,
-						"format": "binary",
-						"schema": {
-							"type": "object",
-							"properties": {
-								"main_articleno": {
-									"type": "integer"
+				"description": "上傳地點圖片，需主要文章編號及地點編號.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"main_articleno": {
+										"type": "integer",
+										"description": "要上傳的主要文章編號",
+										"example": 2
+									},
+									"contentno": {
+										"type": "integer",
+										"description": "要上傳的地點圖片的文章編號",
+										"example": 6
+									},
+									"contentImage": {
+										"type": "string",
+										"format": "binary",
+										"description": "要上傳的景點圖片"
+									}
 								},
-								"contentno": {
-									"type": "integer"
-								}
-							},
-							"example": { "main_articleno": 2, "contentno": 11 }
+								"required": ["main_articleno", "contentno", "contentImage"]
+							}
 						}
 					}
-				],
+				},
 				"responses": {
 					"200": {
 						"description": "上傳成功.",
@@ -426,32 +432,14 @@
 									"type": "string"
 								}
 							},
-							"example": [
-								{
-									"contentno": 6,
-									"location_index": 1,
-									"title": "望幽谷",
-									"content": "望幽谷是一個V字型的山谷，可在綠油油的草地放鬆也可看到八斗子漁港來往的漁船。",
-									"location": "25.1457121,121.7954435",
-									"image": "/guide/2/content/6.jpg"
-								},
-								{
-									"contentno": 7,
-									"location_index": 2,
-									"title": "基隆市廟口小吃",
-									"content": "廟口小吃是基隆夜市的代表，廟口是指鄰近基隆港的重要商業區域。",
-									"location": "25.132734,121.74698",
-									"image": "/guide/2/content/7.jpg"
-								},
-								{
-									"contentno": 8,
-									"location_index": 3,
-									"title": "和平島海邊測試",
-									"content": "廟口小吃是基隆夜市的代表，廟口是指鄰近基隆港的重要商業區域。",
-									"location": "25.141735,121.757748",
-									"image": "/guide/2/content/8.jpg"
-								}
-							]
+							"example": {
+								"contentno": 6,
+								"location_index": 1,
+								"title": "望幽谷",
+								"content": "望幽谷是一個V字型的山谷，可在綠油油的草地放鬆也可看到八斗子漁港來往的漁船。",
+								"location": "25.1457121,121.7954435",
+								"image": "/guide/2/content/6.jpg"
+							}
 						}
 					}
 				}
@@ -504,7 +492,36 @@
 						"$ref": "#/components/schemas/editGuide/properties/hashtags"
 					},
 					"spots": {
-						"$ref": "#/components/schemas/editGuide/properties/spots"
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"contentno": {
+									"type": "integer",
+									"format": "int64"
+								},
+								"location_index": {
+									"type": "integer",
+									"format": "int64"
+								},
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								},
+								"location": {
+									"type": "string"
+								}
+							},
+							"example": {
+								"contentno": 6,
+								"location_index": 1,
+								"title": "望幽谷",
+								"content": "望幽谷是一個V字型的山谷，可在綠油油的草地放鬆也可看到八斗子漁港來往的漁船。",
+								"location": "25.1457121,121.7954435"
+							}
+						}
 					}
 				}
 			},

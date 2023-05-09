@@ -519,43 +519,80 @@ async function deleteFolder(folderPath) {
 
 const mainStorage = multer.diskStorage({
 	destination: async function (req, file, cb) {
-		// console.log("Upload test");
-		const mainFolderPath = path.join(
-			"public",
-			"guide",
-			req.body.main_articleno.toString()
-		);
-		if (!fs.existsSync(mainFolderPath)) {
-			fs.mkdirSync(mainFolderPath, { recursive: true });
+		const connection = await createConnection();
+		try {
+			const [result, fields] = await connection.execute(
+				"SELECT articleno FROM tb_main_article WHERE articleno = ?",
+				[req.body.main_articleno]
+			);
+
+			if (result.length === 0) {
+				return cb(new Error("文章編號不存在"));
+			}
+
+			// 關閉連線
+			await connection.end();
+
+			const mainFolderPath = path.join(
+				"public",
+				"guide",
+				req.body.main_articleno
+			);
+			if (!fs.existsSync(mainFolderPath)) {
+				fs.mkdirSync(mainFolderPath, { recursive: true });
+			}
+			// 刪除舊檔案
+			await delOldImage(mainFolderPath, req.body.main_articleno);
+			cb(null, mainFolderPath);
+		} catch (error) {
+			console.log(error);
+			// 關閉連線
+			await connection.end();
+			return cb(new Error("資料庫查詢失敗"));
 		}
-		// 刪除舊檔案
-		await delOldImage(mainFolderPath, req.body.main_articleno.toString());
-		cb(null, mainFolderPath);
 	},
 	filename: function (req, file, cb) {
 		cb(
 			null,
-			"main_" +
-				req.body.main_articleno.toString() +
-				path.extname(file.originalname)
+			"main_" + req.body.main_articleno + path.extname(file.originalname)
 		);
 	},
 });
 
 const contentStorage = multer.diskStorage({
 	destination: async function (req, file, cb) {
-		const contentFolderPath = path.join(
-			"public",
-			"guide",
-			req.body.main_articleno.toString(),
-			"content"
-		);
-		if (!fs.existsSync(contentFolderPath)) {
-			fs.mkdirSync(contentFolderPath, { recursive: true });
+		const connection = await createConnection();
+		try {
+			const [result, fields] = await connection.execute(
+				"SELECT articleno, contentno FROM tb_content_article WHERE articleno = ? AND contentno = ?",
+				[req.body.main_articleno, req.body.contentno]
+			);
+
+			if (result.length === 0) {
+				return cb(new Error("地點編號不存在"));
+			}
+
+			// 關閉連線
+			await connection.end();
+
+			const contentFolderPath = path.join(
+				"public",
+				"guide",
+				req.body.main_articleno,
+				"content"
+			);
+			if (!fs.existsSync(contentFolderPath)) {
+				fs.mkdirSync(contentFolderPath, { recursive: true });
+			}
+			// 刪除舊檔案
+			await delOldImage(contentFolderPath, req.body.contentno);
+			cb(null, contentFolderPath);
+		} catch (error) {
+			console.log(error);
+			// 關閉連線
+			await connection.end();
+			return cb(new Error("資料庫查詢失敗"));
 		}
-		// 刪除舊檔案
-		await delOldImage(contentFolderPath, req.body.contentno.toString());
-		cb(null, contentFolderPath);
 	},
 	filename: function (req, file, cb) {
 		cb(null, req.body.contentno + path.extname(file.originalname));
@@ -584,34 +621,33 @@ const contentUpload = multer({
 // 要給 主要文章編號 main_articleno
 page.post("/upload/main", mainUpload.single("mainImage"), async (req, res) => {
 	// 主要文章上傳處理邏輯;
-	if (req.file) {
-		const articleNo = req.body.main_articleno;
-		const imgPath = req.file.path;
-		const imgName = path.basename(imgPath);
-		const dbPath = path.posix
-			.join("/", "guide", articleNo, imgName)
-			.replace(/\\/g, "/");
+	const articleNo = req.body.main_articleno;
+	const connection = await createConnection();
+	try {
+		if (req.file) {
+			const imgPath = req.file.path;
+			const imgName = path.basename(imgPath);
+			const dbPath = path.posix
+				.join("/", "guide", articleNo, imgName)
+				.replace(/\\/g, "/");
 
-		const connection = await createConnection();
-		try {
-			await connection.query(
+			await connection.execute(
 				"UPDATE tb_main_article SET image = ? WHERE articleno = ?",
 				[dbPath, articleNo]
 			);
 
-			// 關閉連線
-			await connection.end();
-
 			// 如果成功上傳檔案，回傳檔案路徑
 			res.json({ path: dbPath });
-		} catch (error) {
-			console.log(error);
-			// 關閉連線
-			await connection.end();
+		} else {
+			// 如果上傳失敗，回傳錯誤訊息
+			res.status(400).send("上傳失敗" + error.message);
 		}
-	} else {
-		// 如果上傳失敗，回傳錯誤訊息
-		res.status(400).send("上傳失敗" + error.message);
+		// 關閉連線
+		await connection.end();
+	} catch (error) {
+		console.log(error);
+		// 如果檢查文章編號或執行 SQL 發生錯誤，回傳錯誤訊息
+		res.status(500).send("上傳失敗" + error.message);
 	}
 });
 
@@ -622,35 +658,34 @@ page.post(
 	contentUpload.single("contentImage"),
 	async (req, res) => {
 		// 內容上傳處理邏輯
-		if (req.file) {
-			const articleNo = req.body.main_articleno;
-			const contentNo = req.body.contentno;
-			const imgPath = req.file.path;
-			const imgName = path.basename(imgPath);
-			const dbPath = path.posix
-				.join("/", "guide", articleNo, "content", imgName)
-				.replace(/\\/g, "/");
+		const articleNo = req.body.main_articleno;
+		const contentNo = req.body.contentno;
+		const connection = await createConnection();
+		try {
+			if (req.file) {
+				const imgPath = req.file.path;
+				const imgName = path.basename(imgPath);
+				const dbPath = path.posix
+					.join("/", "guide", articleNo, imgName)
+					.replace(/\\/g, "/");
 
-			const connection = await createConnection();
-			try {
 				await connection.query(
 					"UPDATE tb_content_article SET image = ? WHERE contentno = ?",
 					[dbPath, contentNo]
 				);
 
-				// 關閉連線
-				await connection.end();
-
 				// 如果成功上傳檔案，回傳檔案路徑
 				res.json({ path: dbPath });
-			} catch (error) {
-				console.log(error);
-				// 關閉連線
-				await connection.end();
+			} else {
+				// 如果上傳失敗，回傳錯誤訊息
+				res.status(400).send("上傳失敗" + error.message);
 			}
-		} else {
-			// 如果上傳失敗，回傳錯誤訊息
-			res.status(400).send("上傳失敗" + error.message);
+			// 關閉連線
+			await connection.end();
+		} catch (error) {
+			console.log(error);
+			// 如果檢查文章編號或執行 SQL 發生錯誤，回傳錯誤訊息
+			res.status(500).send("上傳失敗" + error.message);
 		}
 	}
 );
