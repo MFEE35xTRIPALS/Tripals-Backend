@@ -21,8 +21,9 @@ page.post("/like", function (req, res) {
 VALUES (?, ?);
     
 `;
+    const sqlAll = `SELECT * FROM tb_main_article WHERE articleno=?;`;
 
-    connhelper.query(sql, [userno, articleno], (err, results) => {
+    connhelper.query(sql + sqlAll, [userno, articleno, articleno], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send("資料庫發生錯誤,原因：" + err.message);
@@ -49,8 +50,10 @@ page.post("/unlike", function (req, res) {
     DELETE FROM tb_collect WHERE userno = ? AND articleno = ? ;
     
 `;
+    const sqlAll = `SELECT * FROM tb_main_article WHERE articleno=?;`;
 
-    connhelper.query(sql, [userno, articleno], (err, results) => {
+
+    connhelper.query(sql + sqlAll, [userno, articleno, articleno], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send("資料庫發生錯誤,原因：" + err.message);
@@ -74,6 +77,7 @@ page.post("/report", function (req, res) {
     UPDATE tb_main_article SET report_count = report_count + 1 WHERE articleno = ? ;
     
 `;
+
 
     connhelper.query(sql, [articleno], (err, results) => {
         if (err) {
