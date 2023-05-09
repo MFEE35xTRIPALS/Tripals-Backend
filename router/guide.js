@@ -499,6 +499,7 @@ async function delOldImage(mainPath, imgName) {
 // 刪除整個資料夾
 async function deleteFolder(folderPath) {
 	try {
+		await fs.promises.access(folderPath);
 		const files = await fs.promises.readdir(folderPath);
 		for (const file of files) {
 			const curPath = path.join(folderPath, file);
@@ -512,8 +513,12 @@ async function deleteFolder(folderPath) {
 		await fs.promises.rmdir(folderPath); // 删除當前資料夾
 		console.log(`Folder ${folderPath} deleted successfully`);
 	} catch (error) {
-		console.error(`Error deleting folder ${folderPath}: ${error.message}`);
-		throw error;
+		if (error.code === "ENOENT") {
+			console.log(`Folder ${folderPath} does not exist`);
+		} else {
+			console.error(`Error deleting folder ${folderPath}: ${error.message}`);
+			throw error;
+		}
 	}
 }
 

@@ -102,9 +102,10 @@ page.get("/members", function (req, res) {
   var sqlusername =
     "SELECT  SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=?;";
 
+  // console.log(req.query.userId);
   connhelper.query(
     sqlAll + sqlusername,
-    [req.query.userno],
+    [req.query.userId],
     function (err, result, fields) {
       if (err) {
         res.send("<會員管理-渲染get>MySQL 可能語法寫錯了", err);
@@ -124,7 +125,7 @@ page.put("/members/update", express.urlencoded(), function (req, res) {
     "SELECT `userno`, `id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`, `status`, DATE_FORMAT(`date`, '%Y-%m-%d')`date` FROM `tb_user`;";
   connhelper.query(
     sql + sqlAll,
-    [req.body.id, req.body.password, req.body.userno],
+    [req.body.id, req.body.password, req.body.userId],
     function (err, results, fields) {
       if (err) {
         res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
@@ -137,38 +138,32 @@ page.put("/members/update", express.urlencoded(), function (req, res) {
 //---------
 /* 文章管理 */
 //---------
-page.get('/manageArtilcles', function (req, res) {
+page.get("/manageArtilcles", function (req, res) {
   // console.log('kk');
   // res.send('done')
-  let sql = 'SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;'
-  connhelper.query(
-    sql,
-    [],
-    function (err, results, fields) {
-      if (err) {
-        res.send("<文章管理-get>MySQL 可能語法寫錯了", err);
-      } else {
-        res.send(results);
-      }
+  let sql =
+    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;";
+  connhelper.query(sql, [], function (err, results, fields) {
+    if (err) {
+      res.send("<文章管理-get>MySQL 可能語法寫錯了", err);
+    } else {
+      res.send(results);
     }
-  );
-})
+  });
+});
 
 // 文章管理下架＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 // update 文章狀態
 page.put("/takeOf", express.urlencoded(), function (req, res) {
-  var sql = "UPDATE `tb_main_article` SET `status`='report' WHERE `articleno`=?;";
-  connhelper.query(
-    sql,
-    [req.body.articleno],
-    function (err, results, fields) {
-      if (err) {
-        res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
-      } else {
-        res.send(`${req.body.articleno}號文章已被刪除`);
-      }
+  var sql =
+    "UPDATE `tb_main_article` SET `status`='report' WHERE `articleno`=?;";
+  connhelper.query(sql, [req.body.articleno], function (err, results, fields) {
+    if (err) {
+      res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
+    } else {
+      res.send(`${req.body.articleno}號文章已被刪除`);
     }
-  );
+  });
 });
 
 module.exports = page;
