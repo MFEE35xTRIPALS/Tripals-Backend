@@ -55,7 +55,7 @@
 			"patch": {
 				"tags": ["Guide"],
 				"summary": "更新文章.",
-				"description": "更新文章按鈕(發布草稿、發布)做的事.",
+				"description": "更新文章按鈕(發布草稿、發布)做的事，前端進入編輯畫面時會先取得舊的文章資料，最後需要將原始資料與修改資料比對後才將異動資料送出，後端只會更新有異動的欄位.",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -111,7 +111,7 @@
 			"delete": {
 				"tags": ["Guide"],
 				"summary": "刪除文章.",
-				"description": "刪除整篇文章，連同圖片及地點也刪除.",
+				"description": "刪除整篇文章，需傳入文章ID，連同圖片及地點也刪除.",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -142,7 +142,7 @@
 			"get": {
 				"tags": ["Guide"],
 				"summary": "取得要編輯文章的資料.",
-				"description": "按下 編輯文章 後會做的API，會先取得原有的文章資料.",
+				"description": "按下 編輯文章 後會做的API，需傳入文章ID，會先取得原有的文章資料.",
 				"parameters": [
 					{
 						"$ref": "#/components/parameters/get_main_articleno"
