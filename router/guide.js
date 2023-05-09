@@ -541,8 +541,8 @@ const mainStorage = multer.diskStorage({
 		cb(
 			null,
 			"main_" +
-				req.body.main_articleno.toString() +
-				path.extname(file.originalname)
+			req.body.main_articleno.toString() +
+			path.extname(file.originalname)
 		);
 	},
 });
