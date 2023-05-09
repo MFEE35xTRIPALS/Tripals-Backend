@@ -11,17 +11,17 @@ var connhelper = require("./config");
 // -----------------------------------
 /* POST */
 //---------
-page.post("/hots", express.urlencoded(), function (req, res) {
+page.post("/hots", function (req, res) {
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,tb_main_article.`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `like_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
 
   connhelper.query(
     sql + sqllike,
-    [req.body.userId],
+    [req.body.userno],
     function (err, result, fields) {
       if (err) {
-        res.send("<HOT-熱門文章排序 Get>MySQL 可能語法寫錯了", err);
+        res.status("<HOT-熱門文章排序 Get>MySQL 可能語法寫錯了").send(err);
       } else {
         res.json(result);
       }
@@ -33,17 +33,17 @@ page.post("/hots", express.urlencoded(), function (req, res) {
 // -----------------------------------
 /* POST */
 //---------
-page.post("/views", express.urlencoded(), function (req, res) {
+page.post("/views", function (req, res) {
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,tb_main_article.`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
 
   connhelper.query(
     sql + sqllike,
-    [req.body.userId],
+    [req.body.userno],
     function (err, result, fields) {
       if (err) {
-        res.send("<HOT-熱門文章排序 Get>MySQL 可能語法寫錯了", err);
+        res.status("<HOT-熱門文章排序 Get>MySQL 可能語法寫錯了").send(err);
       } else {
         res.json(result);
       }
@@ -71,7 +71,7 @@ page.get("/hashtags", function (req, res) {
 // -----------------------------------
 /* POST */
 //---------
-page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
+page.post("/hashtags/:tagno", function (req, res) {
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,tb_main_article.`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count` FROM `tb_main_article` right JOIN `tb_article_hashtag` ON `tb_main_article`.`articleno` =`tb_article_hashtag`.`articleno` join `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno` where `tb_article_hashtag`.`hashtagno`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
@@ -79,7 +79,7 @@ page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
   // console.log(req.body);
   connhelper.query(
     sql + sqllike,
-    [req.params.tagno, req.body.userId],
+    [req.params.tagno, req.body.userno],
     function (err, result, fields) {
       if (err) {
         res.send("<hashtag-選取之後POST> MySQL 可能語法寫錯了", err);
@@ -96,13 +96,13 @@ page.post("/hashtags/:tagno", express.urlencoded(), function (req, res) {
 // -----------------------------------
 /* POST */
 //---------
-page.post("/city", express.urlencoded(), function (req, res) {
+page.post("/city", function (req, res) {
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username` ,tb_main_article.`userno` , `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
   connhelper.query(
     sql + sqllike,
-    [req.body.city, req.body.userId],
+    [req.body.city, req.body.userno],
     function (err, result, fields) {
       if (err) {
         res.send("<city-選取之後POST> MySQL 可能語法寫錯了", err);
@@ -118,7 +118,7 @@ page.post("/city", express.urlencoded(), function (req, res) {
 // -----------------------------------
 /* POST */
 //---------
-page.post("/search", express.urlencoded(), function (req, res) {
+page.post("/search", function (req, res) {
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,tb_main_article.`userno`, `title`,`content`,`location`, `image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' AND (tb_main_article.title LIKE ? OR location like ? OR content like ?) ORDER BY `like_count` DESC;";
   var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
@@ -128,7 +128,7 @@ page.post("/search", express.urlencoded(), function (req, res) {
       `%${req.body.search}%`,
       `%${req.body.search}%`,
       `%${req.body.search}%`,
-      req.body.userId,
+      req.body.userno,
     ],
     function (err, result, fields) {
       if (err) {
