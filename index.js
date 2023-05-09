@@ -22,6 +22,9 @@ app.get("/", function (req, res) {
   res.send("okk");
 });
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // --------- swagger ---------
 const swagger = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
