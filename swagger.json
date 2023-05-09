@@ -7,7 +7,7 @@
 	},
 	"servers": [
 		{
-			"url": "http://localhost:3000/",
+			"url": "http://localhost:8000/",
 			"description": "Local server"
 		}
 	],
@@ -111,7 +111,7 @@
 			"delete": {
 				"tags": ["Guide"],
 				"summary": "刪除文章.",
-				"description": "刪除整篇文章，連同圖片及景點也刪除.",
+				"description": "刪除整篇文章，連同圖片及地點也刪除.",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -498,7 +498,7 @@
 						"$ref": "#/components/schemas/editGuide/properties/main_location"
 					},
 					"main_image": {
-						"$ref": "#/components/schemas/editGuide/properties/main_image"
+						"$ref": "#/components/schemas/Guide/properties/main_image"
 					},
 					"hashtags": {
 						"$ref": "#/components/schemas/editGuide/properties/hashtags"

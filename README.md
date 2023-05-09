@@ -7,4 +7,4 @@
 ### swagger
 
 swagger 可以直接測試 API 的功能，各位有需要的話再依據自己寫的 API 修改 swagger.json 。
-[swagger](http://localhost:3000/docs)
+[swagger](http://localhost:8000/docs)
