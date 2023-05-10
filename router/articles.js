@@ -60,7 +60,7 @@ page.get("/hashtags", function (req, res) {
     "SELECT `tb_hashtag`.`tagno`, `tb_hashtag`.`hashtag`, count(`tb_article_hashtag`.`hashtagno`) as `count` FROM `tb_hashtag` JOIN `tb_article_hashtag` ON `tb_hashtag`.`tagno` = `tb_article_hashtag`.`hashtagno` WHERE `tb_hashtag`.`status` = 'T' GROUP BY `tb_hashtag`.`tagno` ORDER BY `count`DESC LIMIT 8;";
   connhelper.query(sql, [], function (err, result, fields) {
     if (err) {
-      res.send("<hashtag-8個 Get>MySQL 可能語法寫錯了", err);
+      res.status("<hashtag-8個 Get>MySQL 可能語法寫錯了").send(err);
     } else {
       res.json(result);
     }
@@ -82,7 +82,7 @@ page.post("/hashtags/:tagno", function (req, res) {
     [req.params.tagno, req.body.userno],
     function (err, result, fields) {
       if (err) {
-        res.send("<hashtag-選取之後POST> MySQL 可能語法寫錯了", err);
+        res.status("<hashtag-選取之後POST> MySQL 可能語法寫錯了").send(err);
       } else {
         // console.log(result[0]);
         // console.log(result[1]);
@@ -105,7 +105,7 @@ page.post("/city", function (req, res) {
     [req.body.city, req.body.userno],
     function (err, result, fields) {
       if (err) {
-        res.send("<city-選取之後POST> MySQL 可能語法寫錯了", err);
+        res.status("<city-選取之後POST> MySQL 可能語法寫錯了").send(err);
       } else {
         // console.log(result);
         res.json(result);
@@ -132,7 +132,7 @@ page.post("/search", function (req, res) {
     ],
     function (err, result, fields) {
       if (err) {
-        res.send("<search bar-輸入之後POST> MySQL 可能語法寫錯了", err);
+        res.status("<search bar-輸入之後POST> MySQL 可能語法寫錯了").send(err);
       } else {
         res.json(result);
       }

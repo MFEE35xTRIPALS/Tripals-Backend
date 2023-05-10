@@ -23,7 +23,7 @@ app.get("/", function (req, res) {
 });
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 // --------- swagger ---------
 const swagger = require("swagger-ui-express");
