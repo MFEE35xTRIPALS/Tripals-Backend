@@ -158,11 +158,13 @@ page.get("/manageArtilcles", function (req, res) {
 page.put("/takeOf", function (req, res) {
   var sql =
     "UPDATE `tb_main_article` SET `status`='report' WHERE `articleno`=?;";
-  connhelper.query(sql, [req.body.articleno], function (err, results, fields) {
+  var sqlAll =
+    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;";
+  connhelper.query(sql + sqlAll, [req.body.articleno], function (err, results, fields) {
     if (err) {
       res.send("<會員管理-更新put>MySQL 可能語法寫錯了", err);
     } else {
-      res.send(`${req.body.articleno}號文章已被刪除`);
+      res.send({ myalert: `${req.body.articleno}號文章已被刪除`, myresult: results[1] });
     }
   });
 });
