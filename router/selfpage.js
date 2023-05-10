@@ -58,7 +58,7 @@ page.post("/deleteLikes", express.urlencoded(), function (req, res) {
   );
 });
 page.post("/insertLikes", express.urlencoded(), function (req, res) {
-  console.log(req.body);
+  // console.log(req.body);
   let sql = "INSERT INTO `tb_collect`(`userno`, `articleno`) VALUES (?,?);";
   let sql2 =
     "SELECT COUNT(*) AS `like_count` FROM `tb_collect` WHERE `articleno` = ?;";
