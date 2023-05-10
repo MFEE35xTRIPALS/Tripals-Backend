@@ -77,9 +77,9 @@ page.post(
       sql + sqlAll,
       [
         "/user_banner/" +
-        userno +
-        "." +
-        req.files[0].originalname.split(".")[1],
+          userno +
+          "." +
+          req.files[0].originalname.split(".")[1],
         userno,
         userno,
       ],
@@ -114,20 +114,29 @@ page.post("/identity", function (req, res) {
   var sql3 =
     "SELECT `articleno`, `title`,`view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count`,`tb_main_article`.`status`,tb_main_article.add_date FROM `tb_main_article` WHERE `tb_main_article`.`userno` = ? ORDER BY `tb_main_article`.`add_date` DESC;";
 
-  connhelper.query(sql + sql2 + sql3, [req.body.userno, req.body.userno, req.body.userno], function (err, result, fields) {
-    if (err) {
-      // console.log(req.body.userno);
-      res.status("<個人資料-渲染get>MySQL 可能語法寫錯了").send(err);
-    } else {
-      // console.log(result[2])
-      res.json({ userMessage: result[0], userLikes: result[1], selfarticles: result[2] });
+  connhelper.query(
+    sql + sql2 + sql3,
+    [req.body.userno, req.body.userno, req.body.userno],
+    function (err, result, fields) {
+      if (err) {
+        // console.log(req.body.userno);
+        res.status("<個人資料-渲染get>MySQL 可能語法寫錯了").send(err);
+      } else {
+        // console.log(result[2])
+        res.json({
+          userMessage: result[0],
+          userLikes: result[1],
+          selfarticles: result[2],
+        });
+      }
     }
-  });
+  );
 });
 //---------
 /* POST */
 //---------
-page.post("/identity/update", express.urlencoded(), function (req, res) {
+page.post("/identity/update", function (req, res) {
+  // console.log(req.body);
   var birthday = req.body.birthday ? req.body.birthday : null;
   var sql =
     "UPDATE `tb_user` SET `password`=?,`nickname`=?,`birthday`=?, `intro`=?,date=now() WHERE `userno`=?;";

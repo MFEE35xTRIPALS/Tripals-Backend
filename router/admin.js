@@ -72,7 +72,7 @@ page.put("/news/update", function (req, res) {
 //---------
 /* DELETE */ //不刪除資料庫，僅是改變狀態
 //---------
-page.delete("/news/delete", express.urlencoded(), function (req, res) {
+page.delete("/news/delete", function (req, res) {
   console.log(req.body);
 
   var sql = "UPDATE `tb_news` SET `status`=?, date=now() WHERE `newsno`=?;";
