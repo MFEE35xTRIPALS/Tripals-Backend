@@ -22,7 +22,6 @@ var mystorage = multer.diskStorage({
     //編寫檔案名稱
     var userFileName = photono + "." + file.originalname.split(".")[1]; //留下自己可辨別的檔案
     cb(null, userFileName);
-    console.log(photono)
     // console.log(file)
   },
 });
