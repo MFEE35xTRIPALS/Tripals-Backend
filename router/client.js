@@ -6,6 +6,8 @@ var connhelper = require("./config");
 
 //處理圖檔
 var multer = require("multer");
+let photono;
+
 var mystorage = multer.diskStorage({
   destination: function (req, file, cb) {
     // console.log(req.route.path);// '/uploadBanner'或'/upload'
@@ -13,12 +15,15 @@ var mystorage = multer.diskStorage({
       cb(null, "public/useravatar");
     } else if (req.route.path == "/uploadBanner") {
       cb(null, "public/user_banner");
+      // console.log('okkkk')
     } //保存的路徑(目的地)
   },
   filename: function (req, file, cb) {
     //編寫檔案名稱
-    var userFileName = userno + "." + file.originalname.split(".")[1]; //留下自己可辨別的檔案
+    var userFileName = photono + "." + file.originalname.split(".")[1]; //留下自己可辨別的檔案
     cb(null, userFileName);
+    console.log(photono)
+    // console.log(file)
   },
 });
 let upload = multer({
@@ -33,13 +38,14 @@ let upload = multer({
       file.mimetype == "image/gif"
     ) {
       cb(null, true);
+      // console.log(req)
     } else {
       return cb(new Error("上傳檔案類型錯誤"));
     }
   },
 });
 
-page.post("/upload", upload.array("shotUpload", "userno"), function (req, res) {
+page.post("/upload", upload.single("shotUpload", "userno"), function (req, res) {
   // console.log(req.files[0].originalname.split('.')[1]);
   // userno=req.body.userno;
   // console.log(res);
@@ -48,9 +54,9 @@ page.post("/upload", upload.array("shotUpload", "userno"), function (req, res) {
   connhelper.query(
     sql + sqlAll,
     [
-      "/useravatar/" + userno + "." + req.files[0].originalname.split(".")[1],
-      userno,
-      userno,
+      "/useravatar/" + req.body.userno + "." + req.file.originalname.split(".")[1],
+      req.body.userno,
+      req.body.userno
     ],
     (err, results, fields) => {
       if (err) {
@@ -67,21 +73,22 @@ page.post("/upload", upload.array("shotUpload", "userno"), function (req, res) {
 });
 page.post(
   "/uploadBanner",
-  upload.array("shotUpload", "userno"),
+  upload.single("shotUpload"),
   function (req, res) {
+    // console.log(req);
+    // console.log(req.body.userno);
     // console.log(req.files[0].originalname.split('.')[1]);
-    // userno=req.body.userno;
     let sql = `UPDATE tb_user SET banner = ? WHERE userno = ?;`;
     let sqlAll = "SELECT `banner` FROM `tb_user` WHERE userno=?;";
     connhelper.query(
       sql + sqlAll,
       [
         "/user_banner/" +
-          userno +
-          "." +
-          req.files[0].originalname.split(".")[1],
-        userno,
-        userno,
+        req.body.userno +
+        "." +
+        req.file.originalname.split(".")[1],
+        req.body.userno,
+        req.body.userno,
       ],
       (err, results, fields) => {
         if (err) {
@@ -106,7 +113,7 @@ page.post(
 // ---------------//
 page.post("/identity", function (req, res) {
   // console.log(req.body.userno);
-  // userno = req.query.userno;
+  photono = req.body.userno;
   var sql =
     "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username`,`avatar`,`banner` FROM `tb_user` WHERE userno=?;";
   var sql2 =
