@@ -80,21 +80,22 @@ page.post("/insertLikes", express.urlencoded(), function (req, res) {
   );
 });
 
-page.post("/updateViews", express.urlencoded(), function (req, res) {
-  // console.log(req.body);
-  let sql =
-    "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno`=?;";
-  connhelper.query(
-    sql,
-    [req.body.articleno], //填入？的位置
-    function (err, result, fields) {
-      if (err) {
-        res.status("update發生錯誤").send(err);
-      } else {
-        res.end();
-      }
-    }
-  );
-});
+// ------已搬到瀏覽文章頁----------
+// page.post("/updateViews", express.urlencoded(), function (req, res) {
+//   // console.log(req.body);
+//   let sql =
+//     "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno`=?;";
+//   connhelper.query(
+//     sql,
+//     [req.body.articleno], //填入？的位置
+//     function (err, result, fields) {
+//       if (err) {
+//         res.status("update發生錯誤").send(err);
+//       } else {
+//         res.end();
+//       }
+//     }
+//   );
+// });
 
 module.exports = page;
