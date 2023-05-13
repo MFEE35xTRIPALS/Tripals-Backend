@@ -23,7 +23,31 @@ page.post("/", function (req, res) {
     [req.body.userno],
     function (err, result, fields) {
       if (err) {
-        res.status("<hashtag-8個 Get>MySQL 可能語法寫錯了").send(err);
+        res.status("<First Render Get> MySQL 可能語法寫錯了").send(err);
+      } else {
+        res.json(result);
+      }
+    }
+  );
+});
+// -----------------------------------
+// 從目的地來 :Hashtags 前8個顯示+location排序
+// -----------------------------------
+/* POST */
+//---------
+page.post("/destination", function (req, res) {
+  var sqlA =
+    "SELECT `tb_hashtag`.`tagno`, `tb_hashtag`.`hashtag`, count(`tb_article_hashtag`.`hashtagno`) as `count` FROM `tb_hashtag` JOIN `tb_article_hashtag` ON `tb_hashtag`.`tagno` = `tb_article_hashtag`.`hashtagno` WHERE `tb_hashtag`.`status` = 'T' GROUP BY `tb_hashtag`.`tagno` ORDER BY `count`DESC LIMIT 8;";
+  var sqlB =
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username` ,tb_main_article.`userno` , `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
+  var sqllike = "SELECT `articleno` FROM `tb_collect` WHERE `userno`=?;";
+
+  connhelper.query(
+    sqlA + sqlB + sqllike,
+    [req.body.city, req.body.userno],
+    function (err, result, fields) {
+      if (err) {
+        res.status("<目的地來的渲染 Get> MySQL 可能語法寫錯了").send(err);
       } else {
         res.json(result);
       }
