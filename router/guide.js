@@ -641,8 +641,14 @@ page.post("/upload/main", mainUpload.single("mainImage"), async (req, res) => {
 				[dbPath, articleNo]
 			);
 
+			// 取得主機網址，例如：http://localhost:3000
+			const host = req.protocol + "://" + req.get("host");
+
+			// 構建完整的網址
+			const imageUrl = host + dbPath;
+
 			// 如果成功上傳檔案，回傳檔案路徑
-			res.json({ path: dbPath });
+			res.json({ path: imageUrl });
 		} else {
 			// 如果上傳失敗，回傳錯誤訊息
 			res.status(400).send("上傳失敗" + error.message);
@@ -671,7 +677,7 @@ page.post(
 				const imgPath = req.file.path;
 				const imgName = path.basename(imgPath);
 				const dbPath = path.posix
-					.join("/", "guide", articleNo, imgName)
+					.join("/", "guide", articleNo, "content", imgName)
 					.replace(/\\/g, "/");
 
 				await connection.query(
@@ -679,8 +685,14 @@ page.post(
 					[dbPath, contentNo]
 				);
 
+				// 取得主機網址，例如：http://localhost:3000
+				const host = req.protocol + "://" + req.get("host");
+
+				// 構建完整的網址
+				const imageUrl = host + dbPath;
+
 				// 如果成功上傳檔案，回傳檔案路徑
-				res.json({ path: dbPath });
+				res.json({ path: imageUrl });
 			} else {
 				// 如果上傳失敗，回傳錯誤訊息
 				res.status(400).send("上傳失敗" + error.message);
