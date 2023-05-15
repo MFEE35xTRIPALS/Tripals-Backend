@@ -266,6 +266,7 @@ page.get("/:id", async (req, res) => {
 			formatResult.main_content = item.main_content;
 			formatResult.main_location = item.main_location;
 			formatResult.main_image = item.main_image;
+			formatResult.main_status = item.main_status;
 			formatResult.hashtags = item.hashtags ? item.hashtags.split(",") : [];
 			formatResult.spots = formatResult.spots || [];
 
