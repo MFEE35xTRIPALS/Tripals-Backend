@@ -290,13 +290,14 @@ page.get("/:id", async (req, res) => {
 // 更新文章
 // 要給文章編號 articleNo 及各項要更改的資訊 文章狀態由前端傳入並更改
 page.patch("/", async (req, res) => {
+	console.log(req.body);
 	const articleNo = req.body.main_articleno;
 	const title = req.body.main_title;
 	const content = req.body.main_content;
 	const location = req.body.main_location;
 	// const image = req.body.main_image;
+	const status = req.body.main_status;
 	const hashtags = req.body.hashtags;
-	const status = req.body.status;
 	const spots = req.body.spots;
 
 	const connection = await createConnection();
@@ -373,7 +374,7 @@ page.patch("/", async (req, res) => {
 			);
 		}
 
-		if (spots) {
+		if (spots.length != 0) {
 			console.log("我有更改spots");
 			spots.map((spot) => {
 				let setClause = "";
