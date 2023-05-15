@@ -211,8 +211,17 @@ page.post("/content", async (req, res) => {
 		// 關閉資料庫連線
 		await connection.end();
 
+		const data = {
+			contentno: spotNo,
+			location_index: null,
+			title: null,
+			content: null,
+			location: null,
+			image: null,
+		};
+
 		// 新增佔位文章後回傳此內容的編號
-		res.json({ contentno: spotNo });
+		res.json(data);
 	} catch (error) {
 		console.error(error);
 		// 關閉資料庫連線
@@ -232,7 +241,7 @@ page.get("/:id", async (req, res) => {
 		const connection = await createConnection();
 
 		const sql =
-			"SELECT * FROM view_guide WHERE main_articleno = ? ORDER BY location_index";
+			"SELECT * FROM view_guide WHERE main_articleno = ? ORDER BY contentno";
 		// 執行查詢文章的 SQL 語句
 		const [contentResult] = await connection.query(sql, [articleNo]);
 
@@ -485,13 +494,24 @@ page.get("/", async (req, res) => {
 //#region 圖片上傳
 // 刪除舊檔案，這裡要用非同步方法才可避免先新增完檔案了才刪除
 async function delOldImage(mainPath, imgName) {
-	const files = await fs.promises.readdir(mainPath);
+	try {
+		console.log(mainPath);
+		await fs.promises.access(mainPath);
+		const files = await fs.promises.readdir(mainPath);
 
-	for (const file of files) {
-		if (file.startsWith(imgName + ".")) {
-			const fullPath = path.join(mainPath, file);
-			await fs.promises.unlink(fullPath);
-			console.log(`Deleted ${fullPath}`);
+		for (const file of files) {
+			if (file.startsWith(imgName + ".")) {
+				const fullPath = path.join(mainPath, file);
+				await fs.promises.unlink(fullPath);
+				console.log(`Deleted ${fullPath}`);
+			}
+		}
+	} catch (error) {
+		if (error.code === "ENOENT") {
+			console.log(`找不到 ${mainPath} 資料夾`);
+		} else {
+			console.error(`資料夾 ${mainPath} 刪除失敗 ${error.message}`);
+			throw error;
 		}
 	}
 }
@@ -514,9 +534,9 @@ async function deleteFolder(folderPath) {
 		console.log(`Folder ${folderPath} deleted successfully`);
 	} catch (error) {
 		if (error.code === "ENOENT") {
-			console.log(`Folder ${folderPath} does not exist`);
+			console.log(`找不到 ${folderPath} 資料夾`);
 		} else {
-			console.error(`Error deleting folder ${folderPath}: ${error.message}`);
+			console.error(`資料夾 ${folderPath}刪除失敗 ${error.message}`);
 			throw error;
 		}
 	}
@@ -711,6 +731,8 @@ page.post(
 page.delete("/content", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	const contentNo = req.body.contentno;
+
+	console.log(articleNo + "," + contentNo);
 
 	const contentFolderPath = path.join(
 		"public",
