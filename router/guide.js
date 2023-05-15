@@ -547,7 +547,7 @@ const mainStorage = multer.diskStorage({
 				fs.mkdirSync(mainFolderPath, { recursive: true });
 			}
 			// 刪除舊檔案
-			await delOldImage(mainFolderPath, req.body.main_articleno);
+			await delOldImage(mainFolderPath, "main_" + req.body.main_articleno);
 			cb(null, mainFolderPath);
 		} catch (error) {
 			console.log(error);
