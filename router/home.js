@@ -10,9 +10,9 @@ var connhelper = require("./config");
 // -----------------------------------
 /* GET */
 //---------
-page.post("/", function (req, res) {
+page.get("/", function (req, res) {
   var sqlNews =
-    "SELECT title, content,  DATE_FORMAT(`release`, '%Y-%m-%d') `release` FROM `tb_news` WHERE tb_news.status='T' AND `release`<= CURRENT_DATE() ORDER  BY `release` DESC;";
+  "SELECT title, content, DATE_FORMAT(`release`, '%Y/%m/%d') `release` FROM `tb_news` WHERE tb_news.status='T' AND `release`<= CURRENT_DATE() ORDER BY `release` DESC LIMIT 3;"
   let sqlLikes =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`,tb_main_article.`userno`, `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where  `tb_main_article`.`status`='show' ORDER BY `like_count` DESC;";
   let sqlViews =
