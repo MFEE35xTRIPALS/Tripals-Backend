@@ -18,9 +18,9 @@ var cors = require("cors");
 app.use(cors());
 app.use(express.static("./public"));
 
-app.get("/", function (req, res) {
-  res.send("okk");
-});
+// app.get("/", function (req, res) {
+//   res.send("okk");
+// });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,6 +30,9 @@ const swagger = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 app.use("/docs", swagger.serve, swagger.setup(swaggerDocument));
 // --------- 引用各分頁的CRUD -----------
+/* 首頁 */
+var home = require("./router/home"); // 引用，相對路徑
+app.use("/", home); // 使用
 /* 管理員後台 */
 var admin = require("./router/admin"); // 引用，相對路徑
 app.use("/admin", admin); // 使用
