@@ -19,7 +19,7 @@ page.post("/", function (req, res) {
   var sqlUsername =
     "SELECT  SUBSTRING_INDEX(`id`, '@', 1)`username` FROM `tb_user` WHERE userno=?;";
   let sqlArticles =
-    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;";
+    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` ASC;";
 
   connhelper.query(
     sqlNews + sqlMembers + sqlUsername + sqlArticles,
@@ -135,7 +135,7 @@ page.put("/takeOf", function (req, res) {
   var sql =
     "UPDATE `tb_main_article` SET `status`='report' WHERE `articleno`=?;";
   var sqlAll =
-    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` DESC;";
+    "SELECT `articleno`,`userno`,`title`,`report_count`,`status`,`date` FROM `tb_main_article` WHERE `report_count`!=0 ORDER BY `articleno` ASC;";
   connhelper.query(
     sql + sqlAll,
     [req.body.articleno],
