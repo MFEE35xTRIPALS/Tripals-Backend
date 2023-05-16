@@ -253,7 +253,9 @@ page.get("/:id", async (req, res) => {
 		await connection.end();
 
 		// 檢查查詢結果是否為空陣列
+
 		if (contentResult.length === 0) {
+			console.log(contentResult.length);
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
 
@@ -276,6 +278,7 @@ page.get("/:id", async (req, res) => {
 				title: item.title,
 				content: item.content,
 				location: item.location,
+				location_name: item.location_name,
 				image: item.image,
 			});
 		});
@@ -395,6 +398,10 @@ page.patch("/", async (req, res) => {
 				if (spot.location) {
 					setClause += "tb_content_article.location = ?, ";
 					params.push(spot.location);
+				}
+				if (spot.location_name) {
+					setClause += "tb_content_article.location_name = ?, ";
+					params.push(spot.location_name);
 				}
 				// if (spot.image) {
 				// 	setClause += "tb_content_article.image = ?, ";
@@ -774,6 +781,7 @@ page.delete("/content", async (req, res) => {
 page.delete("/", async (req, res) => {
 	const articleNo = req.body.main_articleno;
 	// const contentNo = req.body.contentno;
+	console.log("articleNo:" + req.body.main_articleno);
 
 	const mainFolderPath = path.join("public", "guide", articleNo.toString());
 
