@@ -92,4 +92,7 @@ app.use("/articles", articles);
 // -----------------------------------
 var guide = require("./router/guide");
 app.use("/guide", guide);
-// test
+// -----------------------------------
+/* 文章頁面收藏｜檢舉 */
+var likepost = require("./router/likepost");
+app.use("/likepost", likepost);
