@@ -28,6 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 const cookieSession = require("cookie-session");
 const session = require("express-session");
 
+
+
 app.use(
   cookieSession({
     name: "session",
@@ -44,6 +46,7 @@ app.use(
     maxAge: 5 * 10000,
   })
 );
+
 // -----------------------------------
 // 密碼加密？？？
 // -----------------------------------
@@ -71,6 +74,8 @@ app.use("/", router2); // 使用
 /* 第三方 */
 const authRoute = require("./router/login/auth");
 app.use("/auth", authRoute);
+
+const googlepassport = require('./router/login/passport')
 // -----------------------------------
 
 // -----------------------------------

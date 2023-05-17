@@ -1,9 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const app = express();
-
 var page = express.Router();
-
 var mysqlConn = require("../config");
 
 let userno;
@@ -13,8 +11,8 @@ app.use(
     secret: "mysecretkey",
     resave: false,
     saveUninitialized: true,
-    maxAge: 5 * 1000,
-    cookie: { secure: false },
+    maxAge: 3600 * 1000,
+    cookie: { secure: true },
   })
 );
 
@@ -24,6 +22,7 @@ app.use("/getSessionData", (req, res, next) => {
 });
 
 page.post("/login2", express.urlencoded(), (req, res) => {
+  console.log('///')
   if (!req.body.id || !req.body.password) {
     console.log("請輸入帳號密碼");
     return res.json({ status: "notEnter", message: "請輸入帳號密碼" });
@@ -59,11 +58,14 @@ page.post("/login2", express.urlencoded(), (req, res) => {
               id: req.body.id,
               password: req.body.password,
             };
-            return res.json({
-              status: "success",
-              message: "登入成功",
-              data: req.session.user,
-            });
+            const sqlGetcurrentuser = 'SELECT `userno`, `permission` FROM `tb_user` WHERE `id`=?';
+            mysqlConn.query(sqlGetcurrentuser, [req.session.user.id], function (error, results) {
+              return res.json({
+                status: "success",
+                message: "登入成功",
+                currentuser: results,
+              });
+            })
           }
         }
       );
@@ -72,6 +74,7 @@ page.post("/login2", express.urlencoded(), (req, res) => {
 });
 
 app.get("/getSessionData", (req, res) => {
+  console.log('kk')
   if (req.session.user) {
     console.log(req.session.user);
     const sessionData = req.session.user;

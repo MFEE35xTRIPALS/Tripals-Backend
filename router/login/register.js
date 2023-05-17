@@ -11,7 +11,7 @@ page.post("/register2", express.urlencoded(), (req, res) => {
   // }
 
   const sqlselect = "SELECT * FROM tb_user WHERE id = ?";
-  const sqlinsert = "INSERT INTO tb_user (id, password) VALUES (?, ?);";
+  const sqlinsert = "INSERT INTO tb_user (id) VALUES (?);";
 
   mysqlConn.query(sqlselect, [req.body.id], function (error, results) {
     //判斷密碼二次輸入
@@ -32,7 +32,7 @@ page.post("/register2", express.urlencoded(), (req, res) => {
             console.error("DB error:", err);
           } else {
             console.log("註冊成功");
-            return res.redirect("../Success");
+            res.end();
           }
         }
       );

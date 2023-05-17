@@ -21,7 +21,7 @@ passport.use(
       console.log(profile);
       console.log(profile.id);
 
-      const Googleid = profile.id;
+      const Googleid = profile.emails[0].value;
 
       const queryString = "SELECT * FROM tb_user WHERE id = ?";
       const queryValues = [Googleid];
@@ -32,7 +32,7 @@ passport.use(
         } else if (results.length > 0) {
           done(null, results[0]);
         } else {
-          const insertQuery = "INSERT INTO tb_user (id) VALUES (?)";
+          const insertQuery = "INSERT INTO tb_user (id,password) VALUES (?,123)";
           const insertValues = [Googleid];
 
           try {
