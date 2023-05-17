@@ -379,14 +379,17 @@ page.get("", express.json(), async (req, res) => {
 		const sql =
 			"SELECT *,(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked FROM view_guide WHERE main_articleno = ? ORDER BY location_index;";
 		const sql2 =
+		"SELECT add_date FROM `tb_main_article` WHERE articleno=?;";
+		const sql3 =
 		"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno`=?;";
 
 		// 執行查詢文章的 SQL 語句
-		const [contentResult] = await connection.query(sql+sql2, [
+		const [contentResult] = await connection.query(sql+sql2+sql3, [
 			userNo,
 			articleNo,
 			articleNo,
-			articleNo
+			articleNo,
+			articleNo,
 		]);
 
 		// 執行查詢文章的hashtag SQL 語句
@@ -395,13 +398,15 @@ page.get("", express.json(), async (req, res) => {
 		// console.log(contentResult);
 		// 關閉連線
 		await connection.end();
-console.log(contentResult);
+// console.log(contentResult[1][0].add_date);
 		// 檢查查詢結果是否為空陣列
 		if (contentResult[0].length === 0) {
 			return res.status(404).send("沒有找到對應的文章編號");
 		}
 
 		const formatResult = {};
+		// console.log(contentResult[0]);
+		formatResult.add_date = contentResult[1][0].add_date;
 		contentResult[0].forEach((item) => {
 			formatResult.userno = userNo;
 			formatResult.articleno = articleNo;
