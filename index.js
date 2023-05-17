@@ -5,7 +5,7 @@ var express = require("express");
 var app = express();
 
 app.listen(8000, function (req, res) {
-  console.log("Tripals: 啟動中");
+  console.log("Tripals後端: 8000 啟動中");
 });
 
 // -----------------------------------
@@ -16,6 +16,9 @@ var cors = require("cors");
 app.use(cors());
 app.use(express.static("./public"));
 
+// -----------------------------------
+// middlewares
+// -----------------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
