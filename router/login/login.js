@@ -58,7 +58,7 @@ page.post("/login2", express.urlencoded(), (req, res) => {
               id: req.body.id,
               password: req.body.password,
             };
-            const sqlGetcurrentuser = 'SELECT `userno`, `permission` FROM `tb_user` WHERE `id`=?';
+            const sqlGetcurrentuser = 'SELECT `userno`, `permission`,`avatar` FROM `tb_user` WHERE `id`=?';
             mysqlConn.query(sqlGetcurrentuser, [req.session.user.id], function (error, results) {
               return res.json({
                 status: "success",
