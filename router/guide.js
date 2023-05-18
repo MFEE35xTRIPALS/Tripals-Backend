@@ -447,11 +447,18 @@ page.get("/", async (req, res) => {
 	try {
 		// 查詢喜歡過的文章
 		const sql =
-			"SELECT *,(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked FROM view_guide WHERE main_articleno = ? ORDER BY location_index;";
+			`SELECT *,
+			(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked,
+			(SELECT add_date FROM tb_main_article WHERE articleno = ?) AS article_add_date
+		FROM view_guide
+		WHERE main_articleno = ?
+		ORDER BY location_index;
+		`;
 
 		// 執行查詢文章的 SQL 語句
 		const [contentResult] = await connection.query(sql, [
 			userNo,
+			articleNo,
 			articleNo,
 			articleNo,
 		]);
@@ -459,7 +466,7 @@ page.get("/", async (req, res) => {
 		// 執行查詢文章的hashtag SQL 語句
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
 
-		// console.log(contentResult);
+		console.log(contentResult[0].article_add_date);
 		// 關閉連線
 		await connection.end();
 
@@ -470,6 +477,7 @@ page.get("/", async (req, res) => {
 
 		const formatResult = {};
 		contentResult.forEach((item) => {
+			formatResult.article_add_date = item.article_add_date;
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
 			formatResult.avatar = item.avatar;
