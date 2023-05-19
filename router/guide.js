@@ -454,10 +454,12 @@ page.get("/", async (req, res) => {
 		WHERE main_articleno = ?
 		ORDER BY location_index;
 		`;
+		const sql2 = "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
 
 		// 執行查詢文章的 SQL 語句
-		const [contentResult] = await connection.query(sql, [
+		const [contentResult] = await connection.query(sql+sql2, [
 			userNo,
+			articleNo,
 			articleNo,
 			articleNo,
 			articleNo,
@@ -466,7 +468,7 @@ page.get("/", async (req, res) => {
 		// 執行查詢文章的hashtag SQL 語句
 		// const [hashtagResult] = await connection.query(hashTagSql, [articleNo]);
 
-		console.log(contentResult[0].article_add_date);
+		console.log(contentResult[0]);
 		// 關閉連線
 		await connection.end();
 
@@ -476,7 +478,7 @@ page.get("/", async (req, res) => {
 		}
 
 		const formatResult = {};
-		contentResult.forEach((item) => {
+		contentResult[0].forEach((item) => {
 			formatResult.article_add_date = item.article_add_date;
 			formatResult.id = item.id;
 			formatResult.nickname = item.nickname;
