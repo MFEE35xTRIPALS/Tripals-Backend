@@ -440,24 +440,27 @@ page.patch("/", async (req, res) => {
 // 瀏覽文章
 // 要給 userno & articleno 判斷現在在瀏覽哪個文章&當前使用者在看的文章有沒有按讚
 page.get("/", async (req, res) => {
-	const userNo = parseInt(req.query.userno);
+	const userNo =
+		req.query.userno && req.query.userno !== ""
+			? parseInt(req.query.userno)
+			: null;
 	const articleNo = parseInt(req.query.articleno);
 	// console.log(articleNo);
 	const connection = await createConnection();
 	try {
 		// 查詢喜歡過的文章
-		const sql =
-			`SELECT *,
+		const sql = `SELECT *,
 			(SELECT EXISTS(SELECT 1 FROM tb_collect WHERE tb_collect.userno = ? AND tb_collect.articleno = ?)) AS liked,
 			(SELECT add_date FROM tb_main_article WHERE articleno = ?) AS article_add_date
 		FROM view_guide
 		WHERE main_articleno = ?
 		ORDER BY location_index;
 		`;
-		const sql2 = "UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
+		const sql2 =
+			"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
 
 		// 執行查詢文章的 SQL 語句
-		const [contentResult] = await connection.query(sql+sql2, [
+		const [contentResult] = await connection.query(sql + sql2, [
 			userNo,
 			articleNo,
 			articleNo,
