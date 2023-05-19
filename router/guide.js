@@ -454,7 +454,7 @@ page.get("/", async (req, res) => {
 			(SELECT add_date FROM tb_main_article WHERE articleno = ?) AS article_add_date
 		FROM view_guide
 		WHERE main_articleno = ?
-		ORDER BY location_index;
+		ORDER BY contentno ASC;
 		`;
 		const sql2 =
 			"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
