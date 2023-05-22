@@ -242,7 +242,7 @@ page.get("/:id", async (req, res) => {
 		const connection = await createConnection();
 
 		const sql =
-			"SELECT * FROM view_guide WHERE main_articleno = ? ORDER BY contentno";
+			"SELECT * FROM view_guide WHERE main_articleno = ? ORDER BY location_index ASC";
 		// 執行查詢文章的 SQL 語句
 		const [contentResult] = await connection.query(sql, [articleNo]);
 
@@ -455,7 +455,7 @@ page.get("/", async (req, res) => {
 			(SELECT add_date FROM tb_main_article WHERE articleno = ?) AS article_add_date
 		FROM view_guide
 		WHERE main_articleno = ?
-		ORDER BY contentno ASC;
+		ORDER BY location_index ASC;
 		`;
 		const sql2 =
 			"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
