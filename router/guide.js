@@ -161,7 +161,8 @@ page.post("/", async (req, res) => {
 	const connection = await createConnection();
 	try {
 		await connection.beginTransaction();
-		const insertMainSql = "INSERT INTO tb_main_article (userno) VALUES (?)";
+		const insertMainSql =
+			"INSERT INTO tb_main_article (userno, title) VALUES (?, 'Untitled')";
 		// 新增文章到資料表 tb_main_article
 		const [insertArticleResult] = await connection.query(insertMainSql, [
 			userno,
