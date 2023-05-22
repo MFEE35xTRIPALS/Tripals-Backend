@@ -116,13 +116,13 @@ page.post("/identity", function (req, res) {
   var sql =
     "SELECT  `userno`,`id`, `password`, `nickname`, DATE_FORMAT(`birthday`, '%Y-%m-%d')`birthday`, `intro`,SUBSTRING_INDEX(`id`, '@', 1)`username`,`avatar`,`banner` FROM `tb_user` WHERE userno=?;";
   var sql2 =
-    "SELECT  `articleno`,IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `like_count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` WHERE `tb_main_article`.`articleno` IN (SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = ?) AND `tb_main_article`.`status` = 'show' ORDER BY `tb_main_article`.`articleno` DESC;";
+    "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS `username`, `avatar`, `tb_main_article`.`userno`, `title`, `image`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `like_count` FROM `tb_main_article` LEFT JOIN `tb_user` ON `tb_user`.`userno` = `tb_main_article`.`userno` LEFT JOIN ( SELECT `tb_collect`.`articleno`, `date` FROM `tb_collect` WHERE `tb_collect`.`userno` = ? ) AS `subquery` ON `tb_main_article`.`articleno` = `subquery`.`articleno` WHERE `tb_main_article`.`articleno` IN ( SELECT `tb_collect`.`articleno` FROM `tb_collect` WHERE `tb_collect`.`userno` = ? ) AND `tb_main_article`.`status` = 'show' ORDER BY `subquery`.`date` DESC;";
   var sql3 =
     "SELECT `articleno`, `title`,`view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE `tb_collect`.`articleno` = `tb_main_article`.`articleno`) AS `count`,`tb_main_article`.`status`,tb_main_article.add_date FROM `tb_main_article` WHERE `tb_main_article`.`userno` = ? ORDER BY `tb_main_article`.`add_date` DESC;";
 
   connhelper.query(
     sql + sql2 + sql3,
-    [req.body.userno, req.body.userno, req.body.userno],
+    [req.body.userno, req.body.userno, req.body.userno, req.body.userno],
     function (err, result, fields) {
       if (err) {
         // console.log(req.body.userno);
