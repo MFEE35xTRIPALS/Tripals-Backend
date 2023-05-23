@@ -629,6 +629,7 @@ const contentStorage = multer.diskStorage({
 				req.body.main_articleno,
 				"content"
 			);
+			console.log("test:" + contentFolderPath);
 			if (!fs.existsSync(contentFolderPath)) {
 				fs.mkdirSync(contentFolderPath, { recursive: true });
 			}
