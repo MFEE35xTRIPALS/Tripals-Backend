@@ -31,5 +31,17 @@ page.get("/", function (req, res) {
   );
 });
 
+page.get('/nav', function (req, res) {
+  // console.log('kkk')
+  let sql = 'SELECT `avatar` FROM `tb_user` WHERE userno=?;';
+  connhelper.query(sql, [req.query.userno], function (err, result, fields) {
+    if (err) {
+      res.status("<Home nav> MySQL 可能語法寫錯了").send(err);
+    } else {
+      res.json(result[0]);
+    }
+  })
+})
+
 
 module.exports = page;
