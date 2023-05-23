@@ -113,14 +113,12 @@ page.post("/hashtags/:tagno", function (req, res) {
 /* POST */
 //---------
 page.post("/city", function (req, res) {
-  console.log(req.body);
   var sql =
     "SELECT `tb_main_article`.`articleno`, IFNULL(tb_user.nickname, SUBSTRING_INDEX(`tb_user`.`id`, '@', 1)) AS`username` ,tb_main_article.`userno` , `title`,`image`,`avatar`, `view_count`, (SELECT COUNT(*) FROM `tb_collect` WHERE tb_collect.articleno=tb_main_article.articleno)AS `like_count`  FROM `tb_main_article` right JOIN `tb_user` on `tb_user`.`userno`=`tb_main_article`.`userno`  where `location`=? AND `tb_main_article`.`status`='show' ORDER BY `view_count` DESC;";
   connhelper.query(sql, [req.body.city], function (err, result, fields) {
     if (err) {
       res.status("<city-選取之後POST> MySQL 可能語法寫錯了").send(err);
     } else {
-      console.log(result);
       res.json(result);
     }
   });

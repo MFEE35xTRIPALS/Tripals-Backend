@@ -28,8 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 const cookieSession = require("cookie-session");
 const session = require("express-session");
 
-
-
 app.use(
   cookieSession({
     name: "session",
@@ -48,7 +46,7 @@ app.use(
 );
 
 // -----------------------------------
-// 密碼加密？？？
+// passwort
 // -----------------------------------
 const passport = require("passport");
 app.use(passport.initialize());
@@ -75,7 +73,7 @@ app.use("/", router2); // 使用
 const authRoute = require("./router/login/auth");
 app.use("/auth", authRoute);
 
-const googlepassport = require('./router/login/passport')
+const googlepassport = require("./router/login/passport");
 // -----------------------------------
 
 // -----------------------------------
@@ -101,3 +99,16 @@ app.use("/guide", guide);
 /* 文章頁面收藏｜檢舉 */
 var likepost = require("./router/likepost");
 app.use("/likepost", likepost);
+
+//
+//
+//
+//
+//
+//
+//
+
+// -----------------------------------
+/* Login-test */
+var users = require("./router/login_test/users");
+app.use("/", users);
