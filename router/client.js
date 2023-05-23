@@ -60,9 +60,9 @@ page.post(
       sql + sqlAll,
       [
         "/useravatar/" +
-          req.body.userno +
-          "." +
-          req.file.originalname.split(".")[1],
+        req.body.userno +
+        "." +
+        req.file.originalname.split(".")[1],
         req.body.userno,
         req.body.userno,
       ],
@@ -93,9 +93,9 @@ page.post("/uploadBanner", upload.single("shotUpload"), function (req, res) {
     sql + sqlAll,
     [
       "/user_banner/" +
-        req.body.userno +
-        "." +
-        req.file.originalname.split(".")[1],
+      req.body.userno +
+      "." +
+      req.file.originalname.split(".")[1],
       req.body.userno,
       req.body.userno,
     ],
