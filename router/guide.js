@@ -173,7 +173,7 @@ page.post("/", async (req, res) => {
 
 		// 仙新增一筆內容到資料表 tb_content_article
 		await connection.query(
-			"INSERT INTO tb_content_article (articleno) VALUES (?) ",
+			"INSERT INTO tb_content_article (articleno,location_index) VALUES (?,1) ",
 			[articleNo]
 		);
 
@@ -198,13 +198,14 @@ page.post("/", async (req, res) => {
 // 要傳入 文章編號 articleNo
 page.post("/content", async (req, res) => {
 	const articleNo = req.body.main_articleno;
+	const location_index = req.body.location_index;
 
 	const connection = await createConnection();
 	try {
 		// 新增內容到資料表 tb_content_article
 		const [insertSpotResult] = await connection.query(
-			"INSERT INTO tb_content_article (articleno) VALUES (?) ",
-			[articleNo]
+			"INSERT INTO tb_content_article (articleno,location_index) VALUES (?,?) ",
+			[articleNo, location_index]
 		);
 
 		// 取得新增的spot No
@@ -214,7 +215,7 @@ page.post("/content", async (req, res) => {
 
 		const data = {
 			contentno: spotNo,
-			location_index: null,
+			location_index: location_index,
 			title: null,
 			content: null,
 			location: null,
