@@ -459,7 +459,7 @@ page.get("/", async (req, res) => {
 		ORDER BY location_index ASC;
 		`;
 		const sql2 =
-			"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? ;";
+			"UPDATE `tb_main_article` SET `view_count`=`view_count`+1 WHERE `articleno` = ? AND `status` = 'show' ;";
 
 		// 執行查詢文章的 SQL 語句
 		const [contentResult] = await connection.query(sql + sql2, [
